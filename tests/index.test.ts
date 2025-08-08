@@ -77,4 +77,14 @@ describe('Workflows', () => {
     expect(onPipelineA).toHaveBeenCalledTimes(1)
     expect(onPipelineB).toHaveBeenCalledTimes(1)
   })
+
+  it('validate pipeline entrypoint', async () => {
+    const workflows = Workflows.fromJson(readWorkflowJson('a-b.json'))
+    workflows.bindModules({
+      'a-b': () => import('./pipelines/a-b')
+    })
+
+    const pipelines = await workflows.run(b)
+    expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(0)
+  })
 })
