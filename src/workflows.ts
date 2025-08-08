@@ -9,7 +9,7 @@ import {
 
 export class Workflows {
   constructor(
-    private pipelines: Pipeline[],
+    public readonly pipelines: Pipeline[],
     private modules: PipelineModuleMap = {},
   ) {}
 
