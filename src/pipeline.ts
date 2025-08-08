@@ -68,3 +68,35 @@ export class Pipeline {
     )
   }
 }
+
+export type PipelineEventListener = {
+  id: number
+  pipeline: string | null
+  callback: PipelineEventCallback,
+}
+
+export type PipelineEventCallback = (pipeline: Pipeline) => void
+
+export type PipelineEventUnsubscribe = () => void
+
+export class PipelineEventEmitter {
+  constructor() {}
+
+  private listeners: PipelineEventListener[] = []
+
+  on(pipeline: PipelineFunction | null, callback: PipelineEventCallback): PipelineEventUnsubscribe {
+    const id = Date.now()
+    this.listeners.push({ id, pipeline: pipeline?.name ?? null, callback })
+    return () => {
+      const index = this.listeners.findIndex(e => e.id == id)
+      this.listeners.splice(index, 1)
+    }
+  }
+
+  emit(pipeline: Pipeline) {
+    this.listeners
+      .filter(e => e.pipeline == pipeline.functionName
+                || e.pipeline == null)
+      .forEach(e => e.callback(pipeline))
+  }
+}
