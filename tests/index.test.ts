@@ -1,6 +1,6 @@
 import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
-import { a } from './pipelines/a-b'
+import { a, b } from './pipelines/a-b'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('Workflows', () => {
@@ -42,5 +42,39 @@ describe('Workflows', () => {
     
     expect(history[0]).toBe('a')
     expect(history[1]).toBe('b')
+  })
+
+  it('validate pipeline event emitter', async () => {
+    const workflows = Workflows.fromJson(readWorkflowJson('a-b.json'))
+    workflows.bindModules({
+      'a-b': () => import('./pipelines/a-b')
+    })
+
+    const onPipelineExec = jest.fn()
+    workflows.events.on(null, onPipelineExec, PipelineState.EXEC)
+
+    const onPipelineDone = jest.fn()
+    workflows.events.on(null, onPipelineDone, PipelineState.DONE)
+
+    const onPipelineWait = jest.fn()
+    workflows.events.on(null, onPipelineWait, PipelineState.WAIT)
+
+    const onPipelineAny = jest.fn()
+    workflows.events.on(null, onPipelineAny, null)
+
+    const onPipelineA = jest.fn()
+    workflows.events.on(a, onPipelineA)
+
+    const onPipelineB = jest.fn()
+    workflows.events.on(b, onPipelineB)
+
+    await workflows.run(a)
+    
+    expect(onPipelineExec).toHaveBeenCalledTimes(2)
+    expect(onPipelineDone).toHaveBeenCalledTimes(2)
+    expect(onPipelineWait).toHaveBeenCalledTimes(0)
+    expect(onPipelineAny).toHaveBeenCalledTimes(4)
+    expect(onPipelineA).toHaveBeenCalledTimes(1)
+    expect(onPipelineB).toHaveBeenCalledTimes(1)
   })
 })
