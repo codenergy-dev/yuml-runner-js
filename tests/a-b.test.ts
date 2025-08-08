@@ -3,7 +3,7 @@ import { Workflows } from '../src/workflows'
 import { a, b } from './pipelines/a-b'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
-describe('Workflows', () => {
+describe('a-b', () => {
   it('parse workflow', () => {
     const workflows = Workflows.fromJson(readWorkflowJson('a-b.json'))
     expect(workflows.pipelines.length).toBe(2)
