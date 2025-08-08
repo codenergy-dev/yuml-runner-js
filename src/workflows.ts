@@ -1,5 +1,6 @@
 import {
   Pipeline,
+  PipelineEventEmitter,
   PipelineFunction,
   PipelineFunctionMap,
   PipelineModuleMap,
@@ -13,6 +14,8 @@ export class Workflows {
     private modules: PipelineModuleMap = {},
   ) {}
 
+  public readonly events: PipelineEventEmitter = new PipelineEventEmitter()
+  
   private functions: PipelineFunctionMap = {}
 
   static fromJson(json: any[]) {
@@ -57,6 +60,7 @@ export class Workflows {
 
         pipeline.state = PipelineState.DONE;
         pipeline.fanInCheck = [];
+        this.events.emit(pipeline)
 
         if (!pipeline.output) return;
 
