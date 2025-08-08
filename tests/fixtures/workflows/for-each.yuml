@@ -1,0 +1,10 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a|count=10]-[note: Sets forEach list length]
+[forEach]-[note: Returns a list]
+[b]-[note: Will be called 10 times]
+
+[a]->[forEach]
+[forEach]->[b]
