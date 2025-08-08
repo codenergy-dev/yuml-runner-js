@@ -58,7 +58,7 @@ export class Workflows {
         this.events.emit(pipeline)
         
         const pipelineFunction = await this.loadPipelineFunction(pipeline)
-        pipeline.output = pipelineFunction({ ...pipeline.input, ...pipeline.args }, config?.scope, config?.global);
+        pipeline.output = await pipelineFunction({ ...pipeline.input, ...pipeline.args }, config?.scope, config?.global);
 
         pipeline.state = PipelineState.DONE;
         pipeline.fanInCheck = [];
