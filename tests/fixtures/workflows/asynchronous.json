@@ -1,0 +1,40 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "asynchronous"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "asynchronous",
+    "function": "asynchronous",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "asynchronous",
+    "args": {},
+    "fanIn": [
+      "asynchronous"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]

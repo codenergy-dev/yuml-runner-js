@@ -1,0 +1,10 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a]
+[asynchronous]
+[b]
+
+[a]->[asynchronous]
+[asynchronous]->[b]
