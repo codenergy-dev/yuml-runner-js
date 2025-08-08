@@ -1,0 +1,28 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "a-b",
+    "args": {
+      "foo": "bar"
+    },
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "a-b",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]

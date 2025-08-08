@@ -1,0 +1,7 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a|foo=bar]
+
+[a]->[b]
