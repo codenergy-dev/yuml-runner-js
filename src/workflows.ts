@@ -54,8 +54,10 @@ export class Workflows {
 
     if (isReady) {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
-        const pipelineFunction = await this.loadPipelineFunction(pipeline)
         pipeline.state = PipelineState.EXEC;
+        this.events.emit(pipeline)
+        
+        const pipelineFunction = await this.loadPipelineFunction(pipeline)
         pipeline.output = pipelineFunction({ ...pipeline.input, ...pipeline.args }, config?.scope, config?.global);
 
         pipeline.state = PipelineState.DONE;
@@ -112,6 +114,7 @@ export class Workflows {
       }
     } else {
       pipeline.state = PipelineState.WAIT;
+      this.events.emit(pipeline)
 
       const nextPipeline = pipelines.find(
         p => pipeline.fanIn.includes(p.name)

@@ -72,7 +72,8 @@ export class Pipeline {
 export type PipelineEventListener = {
   id: number
   pipeline: string | null
-  callback: PipelineEventCallback,
+  callback: PipelineEventCallback
+  state: PipelineState | null
 }
 
 export type PipelineEventCallback = (pipeline: Pipeline) => void
@@ -84,9 +85,18 @@ export class PipelineEventEmitter {
 
   private listeners: PipelineEventListener[] = []
 
-  on(pipeline: PipelineFunction | null, callback: PipelineEventCallback): PipelineEventUnsubscribe {
+  on(
+    pipeline: PipelineFunction | null,
+    callback: PipelineEventCallback,
+    state: PipelineState | null = PipelineState.DONE,
+  ): PipelineEventUnsubscribe {
     const id = Date.now()
-    this.listeners.push({ id, pipeline: pipeline?.name ?? null, callback })
+    this.listeners.push({
+      id,
+      pipeline: pipeline?.name ?? null,
+      callback,
+      state,
+    })
     return () => {
       const index = this.listeners.findIndex(e => e.id == id)
       this.listeners.splice(index, 1)
@@ -95,8 +105,8 @@ export class PipelineEventEmitter {
 
   emit(pipeline: Pipeline) {
     this.listeners
-      .filter(e => e.pipeline == pipeline.functionName
-                || e.pipeline == null)
+      .filter(e => (e.pipeline == pipeline.functionName || e.pipeline == null)
+                && (e.state == pipeline.state || !e.state))
       .forEach(e => e.callback(pipeline))
   }
 }
