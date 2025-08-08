@@ -28,4 +28,19 @@ describe('Workflows', () => {
     const pipelines = await workflows.run(a)
     expect(pipelines.find(p => p.name == 'a')?.args['foo']).toBe('bar')
   })
+
+  it('validate pipelines execution sequence', async () => {
+    const workflows = Workflows.fromJson(readWorkflowJson('a-b.json'))
+    workflows.bindModules({
+      'a-b': () => import('./pipelines/a-b')
+    })
+
+    const history: string[] = []
+    workflows.events.on(null, (pipeline) => history.push(pipeline.name))
+
+    await workflows.run(a)
+    
+    expect(history[0]).toBe('a')
+    expect(history[1]).toBe('b')
+  })
 })
