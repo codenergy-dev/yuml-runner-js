@@ -1,6 +1,5 @@
 import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
-import { a } from './pipelines/asynchronous'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('asynchronous', () => {
@@ -10,7 +9,7 @@ describe('asynchronous', () => {
       'asynchronous': () => import('./pipelines/asynchronous')
     })
 
-    const pipelines = await workflows.run(a)
+    const pipelines = await workflows.run('asynchronous', 'a')
     expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(3)
   })
 })

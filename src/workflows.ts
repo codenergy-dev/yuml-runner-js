@@ -27,21 +27,17 @@ export class Workflows {
     this.modules = modules
   }
 
-  async run(pipeline: Pipeline | PipelineFunction, config?: PipelineRunConfig) {
+  async run(workflow: string, pipeline: string, config?: PipelineRunConfig) {
     const pipelines = [...this.pipelines.map(p => p.reset())]
     const nextPipeline = pipelines
       .find(p => p.entrypoint
-              && p.name == pipeline.name
-              && (typeof pipeline === 'function' || p.workflow == pipeline.workflow))
+              && p.name == pipeline
+              && p.workflow == workflow)
     if (nextPipeline && config?.args) {
       nextPipeline.args = config.args
     }
     await this.runNextPipeline(pipelines, nextPipeline, config)
     return pipelines.filter(p => p.state == PipelineState.DONE)
-  }
-
-  runFromWorkflow(workflow: string, pipeline: PipelineFunction, config?: PipelineRunConfig) {
-    return this.run({ name: pipeline.name, workflow: workflow } as Pipeline, config)
   }
 
   private async runNextPipeline(pipelines: Pipeline[], pipeline?: Pipeline, config?: PipelineRunConfig): Promise<void> {
@@ -146,7 +142,7 @@ export class Workflows {
     var nextPipeline = pipelines
       .find(p => p.workflow == pipeline?.path && p.entrypoint)
     if (nextPipeline) {
-      const nextPipelines = await this.run(nextPipeline, config)
+      const nextPipelines = await this.run(nextPipeline.workflow, nextPipeline.name, config)
       nextPipeline = nextPipelines
         .find(p => p.workflow == pipeline?.path && p.entrypoint)
       if (nextPipeline) {

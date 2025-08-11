@@ -1,5 +1,5 @@
 import { Workflows } from '../src/workflows'
-import { a, b, ForEachCount } from './pipelines/for-each'
+import { ForEachCount } from './pipelines/for-each'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('for-each', () => {
@@ -10,10 +10,10 @@ describe('for-each', () => {
     })
 
     const onPipelineB = jest.fn()
-    workflows.events.on(b, onPipelineB)
+    workflows.events.on('b', onPipelineB)
 
     const forEachCount: ForEachCount = { count: 10 } 
-    await workflows.run(a, { args: forEachCount })
+    await workflows.run('for-each', 'a', { args: forEachCount })
     
     expect(onPipelineB).toHaveBeenCalledTimes(forEachCount.count)
   })

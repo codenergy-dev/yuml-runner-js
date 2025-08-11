@@ -91,17 +91,12 @@ export class PipelineEventEmitter {
   private listeners: PipelineEventListener[] = []
 
   on(
-    pipeline: PipelineFunction | null,
+    pipeline: string | null,
     callback: PipelineEventCallback,
     state: PipelineState | null = PipelineState.DONE,
   ): PipelineEventUnsubscribe {
     const id = Date.now()
-    this.listeners.push({
-      id,
-      pipeline: pipeline?.name ?? null,
-      callback,
-      state,
-    })
+    this.listeners.push({ id, pipeline, callback, state })
     return () => {
       const index = this.listeners.findIndex(e => e.id == id)
       this.listeners.splice(index, 1)

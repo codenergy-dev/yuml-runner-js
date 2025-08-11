@@ -1,6 +1,5 @@
 import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
-import { a } from './pipelines/path'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('path', () => {
@@ -21,7 +20,7 @@ describe('path', () => {
       }
     })
     
-    const pipelines = await workflows.runFromWorkflow('path', a)
+    const pipelines = await workflows.run('path', 'a')
     expect(pipelines.length).toBe(4)
     expect(pipelines.find(p => p.path == 'a-b')?.state).toBe(PipelineState.DONE)
     expect(history.join('->')).toBe('a->b')

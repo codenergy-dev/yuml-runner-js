@@ -1,6 +1,5 @@
 import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
-import { a, b } from './pipelines/a-b'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('a-b', () => {
@@ -15,7 +14,7 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run(a)
+    const pipelines = await workflows.run('a-b', 'a')
     expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(2)
   })
   
@@ -25,7 +24,7 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run(a)
+    const pipelines = await workflows.run('a-b', 'a')
     expect(pipelines.find(p => p.name == 'a')?.args['foo']).toBe('bar')
   })
 
@@ -38,7 +37,7 @@ describe('a-b', () => {
     const history: string[] = []
     workflows.events.on(null, (pipeline) => history.push(pipeline.name))
 
-    await workflows.run(a)
+    await workflows.run('a-b', 'a')
     
     expect(history[0]).toBe('a')
     expect(history[1]).toBe('b')
@@ -63,12 +62,12 @@ describe('a-b', () => {
     workflows.events.on(null, onPipelineAny, null)
 
     const onPipelineA = jest.fn()
-    workflows.events.on(a, onPipelineA)
+    workflows.events.on('a', onPipelineA)
 
     const onPipelineB = jest.fn()
-    workflows.events.on(b, onPipelineB)
+    workflows.events.on('b', onPipelineB)
 
-    await workflows.run(a)
+    await workflows.run('a-b', 'a')
     
     expect(onPipelineExec).toHaveBeenCalledTimes(2)
     expect(onPipelineDone).toHaveBeenCalledTimes(2)
@@ -84,7 +83,7 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run(b)
+    const pipelines = await workflows.run('a-b', 'b')
     expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(0)
   })
 })
