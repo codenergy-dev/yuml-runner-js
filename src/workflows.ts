@@ -71,7 +71,10 @@ export class Workflows {
         pipeline.fanInCheck = [];
         this.events.emit(pipeline)
 
-        if (!pipeline.output) return;
+        if (!pipeline.output) {
+          console.log(`\n✅ ${pipeline.name}`);
+          return;
+        }
 
         if (Array.isArray(pipeline.output)) {
           console.log(`\n🔁 ${pipeline.name} (${pipeline.output.length})`);
