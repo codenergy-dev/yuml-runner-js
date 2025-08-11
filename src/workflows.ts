@@ -30,12 +30,18 @@ export class Workflows {
   async run(pipeline: Pipeline | PipelineFunction, config?: PipelineRunConfig) {
     const pipelines = [...this.pipelines.map(p => p.reset())]
     const nextPipeline = pipelines
-      .find(p => p.entrypoint && p.name == pipeline.name)
+      .find(p => p.entrypoint
+              && p.name == pipeline.name
+              && (typeof pipeline === 'function' || p.workflow == pipeline.workflow))
     if (nextPipeline && config?.args) {
       nextPipeline.args = config.args
     }
     await this.runNextPipeline(pipelines, nextPipeline, config)
     return pipelines.filter(p => p.state == PipelineState.DONE)
+  }
+
+  runFromWorkflow(workflow: string, pipeline: PipelineFunction, config?: PipelineRunConfig) {
+    return this.run({ name: pipeline.name, workflow: workflow } as Pipeline, config)
   }
 
   private async runNextPipeline(pipelines: Pipeline[], pipeline?: Pipeline, config?: PipelineRunConfig): Promise<void> {
