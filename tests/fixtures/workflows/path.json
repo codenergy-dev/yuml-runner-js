@@ -1,0 +1,54 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "a-b.a"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "a-b.a",
+    "function": "a",
+    "path": "a-b",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a-b.a"
+    ],
+    "fanOut": [
+      "c"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]

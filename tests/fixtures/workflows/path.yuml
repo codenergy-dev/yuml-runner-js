@@ -1,0 +1,12 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a]
+[a-b.a]-[note: Calls pipeline from another workflow]
+[b]-[note: Returns to current workflow]
+[c]
+
+[a]->[a-b.a]
+[a-b.a]->[b]
+[b]->[c]

@@ -3,5 +3,5 @@ export function a({ foo }: { foo: string }) {
 }
 
 export function b() {
-  return
+  return {}
 }
