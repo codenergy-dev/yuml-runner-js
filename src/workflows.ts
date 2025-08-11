@@ -54,11 +54,16 @@ export class Workflows {
 
     if (isReady) {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
+        console.log(`\n▶️  ${pipeline.name}`)
         pipeline.state = PipelineState.EXEC;
         this.events.emit(pipeline)
         
         const pipelineFunction = await this.loadPipelineFunction(pipeline)
-        pipeline.output = await pipelineFunction({ ...pipeline.input, ...pipeline.args }, config?.scope, config?.global);
+        const inputWithArgs = { ...pipeline.input, ...pipeline.args }
+        for (const [key, value] of Object.entries(inputWithArgs)) {
+          console.log(`  └─ ${key}: ${value}`);
+        }
+        pipeline.output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
 
         pipeline.state = PipelineState.DONE;
         pipeline.fanInCheck = [];
