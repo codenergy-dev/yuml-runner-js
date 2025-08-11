@@ -144,7 +144,7 @@ export class Workflows {
       nextPipeline = nextPipelines
         .find(p => p.workflow == pipeline?.path && p.entrypoint)
       if (nextPipeline) {
-        pipeline.copyState(nextPipeline)
+        pipeline.complete(nextPipeline.input, nextPipeline.args, nextPipeline.output)
       }
       
       const nextFanOut = nextPipelines
@@ -154,7 +154,7 @@ export class Workflows {
           .find(p => pipeline.fanOut.includes(p.name)
                   && p.workflow == pipeline.workflow)
         if (nextPipelineFanOut) {
-          nextPipelineFanOut.copyState(fanOut)
+          nextPipelineFanOut.complete(fanOut.input, fanOut.args, fanOut.output)
           await this.runNextPipeline(pipelines, nextPipelineFanOut, config)
         }
       }

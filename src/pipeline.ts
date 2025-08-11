@@ -17,6 +17,10 @@ export type PipelineRunConfig = {
   global?: any
 }
 
+export type PipelineInput = Record<string, any>
+
+export type PipelineOutput = Record<string, any>[] | null
+
 export class Pipeline {
   constructor(
     public name: string,
@@ -32,8 +36,8 @@ export class Pipeline {
   fanInCheck: string[] = []
   fanOutPending: string | null = null
   state: PipelineState = PipelineState.IDLE
-  input: Record<string, any> = {}
-  output: Record<string, any>[] | null = null
+  input: PipelineInput = {}
+  output: PipelineOutput = null
 
   static fromJson(json: any) {
     return new Pipeline(
@@ -48,11 +52,12 @@ export class Pipeline {
     )
   }
 
-  copyState(pipeline: Pipeline) {
-    this.fanInCheck = [...pipeline.fanInCheck]
-    this.state = pipeline.state
-    this.input = {...pipeline.input}
-    this.output = [...(pipeline.output ?? [])]
+  complete(input: PipelineInput, args: PipelineInput, output: PipelineOutput) {
+    this.fanInCheck = [...this.fanIn]
+    this.state = PipelineState.DONE
+    this.input = {...input}
+    this.args = {...args}
+    this.output = [...(output ?? [])]
   }
 
   reset() {
