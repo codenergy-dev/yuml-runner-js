@@ -1,0 +1,10 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a]
+[b]
+[error]-[note: Throws an error]
+
+[a]->[b]
+[b]->[error]

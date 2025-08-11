@@ -1,0 +1,40 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "error"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "error",
+    "function": "error",
+    "path": null,
+    "workflow": "error",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]
