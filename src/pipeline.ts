@@ -3,6 +3,7 @@ export enum PipelineState {
   EXEC = "exec",
   WAIT = "wait",
   DONE = "done",
+  FAILED = "failed",
 }
 
 export type PipelineFunction = (args: any, scope?: any, global?: any) => any
@@ -38,6 +39,7 @@ export class Pipeline {
   state: PipelineState = PipelineState.IDLE
   input: PipelineInput = {}
   output: PipelineOutput = null
+  error: string | null = null
 
   static fromJson(json: any) {
     return new Pipeline(

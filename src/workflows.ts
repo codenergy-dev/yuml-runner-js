@@ -37,7 +37,7 @@ export class Workflows {
       nextPipeline.args = config.args
     }
     await this.runNextPipeline(pipelines, nextPipeline, config)
-    return pipelines.filter(p => p.state == PipelineState.DONE)
+    return pipelines.filter(p => p.state == PipelineState.DONE || p.state == PipelineState.FAILED)
   }
 
   private async runNextPipeline(pipelines: Pipeline[], pipeline?: Pipeline, config?: PipelineRunConfig): Promise<void> {
@@ -56,22 +56,33 @@ export class Workflows {
 
     if (isReady) {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
-        console.log(`\n▶️  ${pipeline.name}`)
-        pipeline.state = PipelineState.EXEC;
-        this.events.emit(pipeline)
-        
-        const pipelineFunction = await this.loadPipelineFunction(pipeline)
-        const inputWithArgs = { ...pipeline.input, ...pipeline.args }
-        for (const [key, value] of Object.entries(inputWithArgs)) {
-          console.log(`  └─ ${key}: ${value}`);
+        try {
+          console.log(`\n▶️  ${pipeline.name}`)
+          pipeline.state = PipelineState.EXEC;
+          this.events.emit(pipeline)
+          
+          const pipelineFunction = await this.loadPipelineFunction(pipeline)
+          const inputWithArgs = { ...pipeline.input, ...pipeline.args }
+          for (const [key, value] of Object.entries(inputWithArgs)) {
+            console.log(`  └─ ${key}: ${value}`);
+          }
+          pipeline.output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
+
+          pipeline.state = PipelineState.DONE;
+          pipeline.fanInCheck = [];
+        } catch (e: any) {
+          pipeline.output = null;
+          pipeline.state = PipelineState.FAILED;
+          pipeline.error = e.toString();
+        } finally {
+          this.events.emit(pipeline)
         }
-        pipeline.output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
 
-        pipeline.state = PipelineState.DONE;
-        pipeline.fanInCheck = [];
-        this.events.emit(pipeline)
-
-        if (!pipeline.output) {
+        if (pipeline.error) {
+          console.log(`\n⛔ ${pipeline.name}`);
+          console.log(`  └─ ${pipeline.error}`);
+          return;
+        } else if (!pipeline.output) {
           console.log(`\n✅ ${pipeline.name}`);
           return;
         }
