@@ -1,7 +1,6 @@
 import {
   Pipeline,
   PipelineEventEmitter,
-  PipelineFunction,
   PipelineFunctionMap,
   PipelineModuleMap,
   PipelineRunConfig,
