@@ -1,10 +1,12 @@
 {
   "name": "yuml-runner",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
     "test": "jest"
