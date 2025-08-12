@@ -121,6 +121,7 @@ export class Workflows {
           nextPipeline.input = { ...nextPipeline.input, ...output };
         }
 
+        const nextPipelines: Promise<void>[] = []
         for (const fanOut of fanOutList) {
           const nextPipeline = pipelines.find(
             p => p.name === fanOut
@@ -129,9 +130,10 @@ export class Workflows {
           );
           if (nextPipeline) {
             console.log(`\nℹ️  [${pipeline.name}]->[${nextPipeline.name}]`);
+            nextPipelines.push(this.runNextPipeline(pipelines, nextPipeline, config));
           }
-          await this.runNextPipeline(pipelines, nextPipeline, config);
         }
+        await Promise.all(nextPipelines)
       }
     } else {
       pipeline.state = PipelineState.WAIT;
