@@ -58,14 +58,15 @@ export class Workflows {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
         try {
           console.log(`\n▶️  ${pipeline.name}`)
-          pipeline.state = PipelineState.EXEC;
-          this.events.emit(pipeline)
-          
-          const pipelineFunction = await this.loadPipelineFunction(pipeline)
           const inputWithArgs = { ...pipeline.input, ...pipeline.args }
           for (const [key, value] of Object.entries(inputWithArgs)) {
             console.log(`  └─ ${key}: ${value}`);
           }
+          
+          pipeline.state = PipelineState.EXEC;
+          this.events.emit(pipeline)
+          
+          const pipelineFunction = await this.loadPipelineFunction(pipeline)
           pipeline.output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
 
           pipeline.state = PipelineState.DONE;
