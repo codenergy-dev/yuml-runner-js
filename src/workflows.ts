@@ -180,11 +180,11 @@ export class Workflows {
   }
 
   private async loadPipelineFunction(pipeline: Pipeline) {
-    const functionKey = `${pipeline.workflow}:${pipeline.functionName}`
+    const functionKey = `${pipeline.workflow}.${pipeline.functionName}`
     if (!this.functions[functionKey]) {
       const importedFunctions = await this.modules[pipeline.workflow]()
       for (var functionName in importedFunctions) {
-        this.functions[`${pipeline.workflow}:${functionName}`] = importedFunctions[functionName] 
+        this.functions[`${pipeline.workflow}.${functionName}`] = importedFunctions[functionName] 
       }
     }
     if (!this.functions[functionKey]) {
