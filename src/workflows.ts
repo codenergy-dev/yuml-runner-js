@@ -39,10 +39,15 @@ export class Workflows {
     return pipelines.filter(p => p.state == PipelineState.DONE || p.state == PipelineState.FAILED)
   }
 
-  private async runNextPipeline(pipelines: Pipeline[], pipeline?: Pipeline, config?: PipelineRunConfig): Promise<void> {
+  private async runNextPipeline(
+    pipelines: Pipeline[],
+    pipeline?: Pipeline,
+    config?: PipelineRunConfig,
+    ignorePath: boolean = false,
+  ): Promise<void> {
     if (!pipeline) return;
 
-    if (pipeline.path) {
+    if (pipeline.path && ignorePath == false) {
       return await this.runNextPipelineFromPath(pipelines, pipeline, config)
     }
 
@@ -156,17 +161,22 @@ export class Workflows {
 
   private async runNextPipelineFromPath(pipelines: Pipeline[], pipeline: Pipeline, config?: PipelineRunConfig): Promise<void> {
     var nextPipeline = pipelines
-      .find(p => p.workflow == pipeline?.path && p.entrypoint)
-    if (nextPipeline) {
+      .find(p => p.workflow == pipeline.path
+              && p.functionName == pipeline.functionName)
+    if (!nextPipeline) {
+      throw new Error(`Pipeline from workflow '${pipeline.path}' with function '${pipeline.functionName}' not found.`);
+    } else if (nextPipeline.entrypoint) {
       const nextPipelines = await this.run(nextPipeline.workflow, nextPipeline.name, config)
       nextPipeline = nextPipelines
-        .find(p => p.workflow == pipeline?.path && p.entrypoint)
+        .find(p => p.workflow == pipeline.path
+                && p.functionName == pipeline.functionName
+                && p.entrypoint)
       if (nextPipeline) {
         pipeline.complete(nextPipeline.input, nextPipeline.args, nextPipeline.output)
       }
       
       const nextFanOut = nextPipelines
-        .filter(p => pipeline.fanOut.includes(p.name))
+        .filter(p => pipeline.fanOut.includes(`${p.workflow}.${p.name}`))
       for (var fanOut of nextFanOut) {
         var nextPipelineFanOut = pipelines
           .find(p => pipeline.fanOut.includes(p.name)
@@ -176,6 +186,8 @@ export class Workflows {
           await this.runNextPipeline(pipelines, nextPipelineFanOut, config)
         }
       }
+    } else {
+      await this.runNextPipeline(pipelines, pipeline, config, true)
     }
   }
 
