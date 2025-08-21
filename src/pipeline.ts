@@ -74,6 +74,12 @@ export class Pipeline {
       this.entrypoint,
     )
   }
+
+  toString() {
+    return this.path
+      ? `[${this.name}]`
+      : `[${this.workflow}.${this.name}]`
+  }
 }
 
 export type PipelineEventListener = {
