@@ -180,15 +180,16 @@ export class Workflows {
   }
 
   private async loadPipelineFunction(pipeline: Pipeline) {
-    const functionKey = `${pipeline.workflow}.${pipeline.functionName}`
+    const moduleName = pipeline.path ?? pipeline.workflow
+    const functionKey = `${moduleName}.${pipeline.functionName}`
     if (!this.functions[functionKey]) {
-      const importedFunctions = await this.modules[pipeline.workflow]()
+      const importedFunctions = await this.modules[moduleName]()
       for (var functionName in importedFunctions) {
-        this.functions[`${pipeline.workflow}.${functionName}`] = importedFunctions[functionName] 
+        this.functions[`${moduleName}.${functionName}`] = importedFunctions[functionName] 
       }
     }
     if (!this.functions[functionKey]) {
-      throw Error(`The function with name '${pipeline.functionName}' was not found in module '${pipeline.workflow}'.`)
+      throw Error(`The function with name '${pipeline.functionName}' was not found in module '${moduleName}'.`)
     }
     return this.functions[functionKey]
   }
