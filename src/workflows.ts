@@ -56,7 +56,7 @@ export class Workflows {
     if (isReady) {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
         try {
-          console.log(`\n▶️  ${pipeline.name}`)
+          console.log(`\n▶️  ${pipeline}`)
           const inputWithArgs = { ...pipeline.input, ...pipeline.args }
           for (const [key, value] of Object.entries(inputWithArgs)) {
             console.log(`  └─ ${key}: ${value}`);
@@ -79,21 +79,21 @@ export class Workflows {
         }
 
         if (pipeline.error) {
-          console.log(`\n⛔ ${pipeline.name}`);
+          console.log(`\n⛔ ${pipeline}`);
           console.log(`  └─ ${pipeline.error}`);
           return;
         } else if (!pipeline.output) {
-          console.log(`\n✅ ${pipeline.name}`);
+          console.log(`\n✅ ${pipeline}`);
           return;
         }
 
         if (Array.isArray(pipeline.output)) {
-          console.log(`\n🔁 ${pipeline.name} (${pipeline.output.length})`);
+          console.log(`\n🔁 ${pipeline} (${pipeline.output.length})`);
         } else if (typeof pipeline.output === "object") {
-          console.log(`\n✅ ${pipeline.name}`);
+          console.log(`\n✅ ${pipeline}`);
           pipeline.output = [pipeline.output];
         } else {
-          throw new Error(`Unexpected output (${pipeline.output}) for pipeline ${pipeline.name}.`);
+          throw new Error(`Unexpected output (${pipeline.output}) for pipeline ${pipeline}.`);
         }
 
         for (const output of pipeline.output) {
@@ -129,7 +129,7 @@ export class Workflows {
               && p.workflow == pipeline.workflow
           );
           if (nextPipeline) {
-            console.log(`\nℹ️  [${pipeline.name}]->[${nextPipeline.name}]`);
+            console.log(`\nℹ️  ${pipeline}->${nextPipeline}`);
             nextPipelines.push(this.runNextPipeline(pipelines, nextPipeline, config));
           }
         }
@@ -146,7 +146,7 @@ export class Workflows {
       );
 
       if (nextPipeline) {
-        console.log(`\nℹ️  [${nextPipeline.name}]<-[${pipeline.name}]`);
+        console.log(`\nℹ️  ${nextPipeline}<-${pipeline}`);
         nextPipeline.fanOutPending = pipeline.name;
       }
 
