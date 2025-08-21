@@ -1,0 +1,13 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[a]
+[b]
+[c]
+[d]
+[e]
+
+[a]->[b]
+[c]->[d]
+[d]->[e]

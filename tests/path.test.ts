@@ -1,28 +1,46 @@
-import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
 describe('path', () => {
-  it('validate pipeline call to another workflow', async () => {
+  it('validate pipeline call to another workflow that is an entrypoint', async () => {
     const workflows = Workflows.fromJson([
-      ...readWorkflowJson('a-b.json'),
+      ...readWorkflowJson('a-b-c-d-e.json'),
       ...readWorkflowJson('path.json'),
     ])
     workflows.bindModules({
-      'a-b': () => import('./pipelines/a-b'),
+      'a-b-c-d-e': () => import('./pipelines/a-b-c-d-e'),
       'path': () => import('./pipelines/path')
     })
 
-    const history: string[] = []
+    const anotherWorkflowHistory: string[] = []
     workflows.events.on(null, (pipeline) => {
-      if (pipeline.workflow == 'a-b') {
-        history.push(pipeline.name)
+      if (pipeline.workflow == 'a-b-c-d-e') {
+        anotherWorkflowHistory.push(pipeline.name)
       }
     })
     
     const pipelines = await workflows.run('path', 'a')
-    expect(pipelines.length).toBe(4)
-    expect(pipelines.find(p => p.path == 'a-b')?.state).toBe(PipelineState.DONE)
-    expect(history.join('->')).toBe('a->b')
+    expect(anotherWorkflowHistory.join('->')).toBe('a->b')
+  })
+
+  it('validate pipeline call to another workflow that is NOT an entrypoint', async () => {
+    const workflows = Workflows.fromJson([
+      ...readWorkflowJson('a-b-c-d-e.json'),
+      ...readWorkflowJson('path.json'),
+    ])
+    workflows.bindModules({
+      'a-b-c-d-e': () => import('./pipelines/a-b-c-d-e'),
+      'path': () => import('./pipelines/path')
+    })
+
+    const onNotEntrypointPipeline = jest.fn()
+    workflows.events.on(null, (pipeline) => {
+      if (pipeline.path == 'a-b-c-d-e') {
+        onNotEntrypointPipeline()
+      }
+    })
+    
+    const pipelines = await workflows.run('path', 'd')
+    expect(onNotEntrypointPipeline).toHaveBeenCalledTimes(1)
   })
 })

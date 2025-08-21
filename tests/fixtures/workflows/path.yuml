@@ -3,10 +3,15 @@
 // {generate:true}
 
 [a]
-[a-b.a]-[note: Calls pipeline from another workflow]
-[b]-[note: Returns to current workflow]
+[a-b-c-d-e.a]-[note: Calls pipeline from another workflow that is an entrypoint, it will run ALL pipeline chain]
+[a-b-c-d-e.b]-[note: Propagates the result from another workflow]
+[a-b-c-d-e.d]-[note: Calls pipeline from another workflow that is NOT an entrypoint, it will run ONLY ONE pipeline]
 [c]
+[d]
+[e]
 
-[a]->[a-b.a]
-[a-b.a]->[b]
-[b]->[c]
+[a]->[a-b-c-d-e.a]
+[d]->[a-b-c-d-e.d]
+[a-b-c-d-e.a]->[a-b-c-d-e.b]
+[a-b-c-d-e.b]->[c]
+[a-b-c-d-e.d]->[e]

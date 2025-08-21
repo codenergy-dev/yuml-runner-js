@@ -7,35 +7,61 @@
     "args": {},
     "fanIn": [],
     "fanOut": [
-      "a-b.a"
+      "a-b-c-d-e.a"
     ],
     "entrypoint": true
   },
   {
-    "name": "a-b.a",
+    "name": "d",
+    "function": "d",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "a-b-c-d-e.d"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "a-b-c-d-e.a",
     "function": "a",
-    "path": "a-b",
+    "path": "a-b-c-d-e",
     "workflow": "path",
     "args": {},
     "fanIn": [
       "a"
     ],
     "fanOut": [
-      "b"
+      "a-b-c-d-e.b"
     ],
     "entrypoint": false
   },
   {
-    "name": "b",
+    "name": "a-b-c-d-e.b",
     "function": "b",
-    "path": null,
+    "path": "a-b-c-d-e",
     "workflow": "path",
     "args": {},
     "fanIn": [
-      "a-b.a"
+      "a-b-c-d-e.a"
     ],
     "fanOut": [
       "c"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "a-b-c-d-e.d",
+    "function": "d",
+    "path": "a-b-c-d-e",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "d"
+    ],
+    "fanOut": [
+      "e"
     ],
     "entrypoint": false
   },
@@ -46,7 +72,19 @@
     "workflow": "path",
     "args": {},
     "fanIn": [
-      "b"
+      "a-b-c-d-e.b"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  },
+  {
+    "name": "e",
+    "function": "e",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "a-b-c-d-e.d"
     ],
     "fanOut": [],
     "entrypoint": false

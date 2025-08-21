@@ -2,6 +2,10 @@ export function a() {
   return {}
 }
 
+export function b() {
+  return {}
+}
+
 export function c() {
   return {}
 }
