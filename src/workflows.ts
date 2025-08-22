@@ -178,29 +178,27 @@ export class Workflows {
     if (!nextPipeline) {
       throw new Error(`Pipeline from workflow '${pipeline.path}' with function '${pipeline.functionName}' not found.`);
     } else if (nextPipeline.entrypoint) {
-      const nextPipelines = await this.run(nextPipeline.workflow, nextPipeline.name, config)
-      nextPipeline = nextPipelines
-        .find(p => p.workflow == pipeline.path
-                && p.functionName == pipeline.functionName
-                && p.entrypoint)
-      if (nextPipeline) {
-        pipeline.copy(nextPipeline)
-      }
-      
-      const nextFanOut = nextPipelines
-        .filter(p => pipeline.fanOut.includes(`${p.workflow}.${p.name}`))
-      for (var fanOut of nextFanOut) {
-        var nextPipelineFanOut = pipelines
-          .find(p => pipeline.fanOut.includes(p.name)
-                  && p.workflow == pipeline.workflow)
-        if (nextPipelineFanOut) {
-          nextPipelineFanOut.copy(fanOut)
-          await this.runNextPipeline(pipelines, nextPipelineFanOut, config)
+      const nextPipelineRunConfig = { ...config, id: Date.now() }
+      const nextPipelineCallback = (p: Pipeline, c?: PipelineRunConfig) => {
+        if (c?.id != nextPipelineRunConfig.id) {
+          return
+        } else if (p.workflow == pipeline.path &&
+                   p.functionName == pipeline.functionName &&
+                   p.entrypoint) {
+          pipeline.copy(p)
+        } else if (pipeline.fanOut.includes(`${p.workflow}.${p.name}`)) {
+          pipelines
+            .find(p => p.name == `${p.workflow}.${p.name}`
+                    && p.workflow == pipeline.workflow)
+            ?.copy(p)
         }
       }
-    } else {
-      await this.runNextPipeline(pipelines, pipeline, config, true)
+      const nextPipelineUnsubscribe = this.events.on(null, nextPipelineCallback)
+      await this.run(nextPipeline.workflow, nextPipeline.name, nextPipelineRunConfig)
+      nextPipelineUnsubscribe()
     }
+    
+    await this.runNextPipeline(pipelines, pipeline, config, true)
   }
 
   private async loadPipelineFunction(pipeline: Pipeline) {
