@@ -49,7 +49,11 @@ export class Workflows {
       nextPipeline.copy(initialPipelineState)
     }
     await this.runNextPipeline(pipelines, nextPipeline, config)
-    return pipelines.filter(p => p.state == PipelineState.DONE || p.state == PipelineState.FAILED)
+    return pipelines
+      .find(p => p.name == "output"
+              && p.workflow == workflow
+              && p.state == PipelineState.DONE)
+      ?.input
   }
 
   private async runNextPipeline(
@@ -83,7 +87,9 @@ export class Workflows {
           pipeline.state = PipelineState.EXEC;
           this.events.emit(pipeline, config)
           
-          const pipelineFunction = await this.loadPipelineFunction(pipeline)
+          const pipelineFunction = pipeline.name == "output"
+            ? () => null
+            : await this.loadPipelineFunction(pipeline)
           const output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
 
           pipeline.state = PipelineState.DONE;
@@ -111,7 +117,7 @@ export class Workflows {
           this.events.emit(pipeline, config)
         }
 
-        if (!pipeline.output) return;
+        if (!pipeline.output || pipeline.name == "output") return;
 
         for (const output of pipeline.output) {
           if (typeof output === "object") {
