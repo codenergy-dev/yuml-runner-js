@@ -1,0 +1,52 @@
+[
+  {
+    "name": "a",
+    "function": "a",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "b"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "output",
+    "function": "output",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [],
+    "entrypoint": true
+  },
+  {
+    "name": "b",
+    "function": "b",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [
+      "a"
+    ],
+    "fanOut": [
+      "c"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "c",
+    "function": "c",
+    "path": null,
+    "workflow": "output",
+    "args": {},
+    "fanIn": [
+      "b"
+    ],
+    "fanOut": [
+      "output"
+    ],
+    "entrypoint": false
+  }
+]

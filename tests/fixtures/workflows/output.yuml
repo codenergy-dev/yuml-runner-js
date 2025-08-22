@@ -1,0 +1,7 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+
+[a]->[b]
+[b]->[c]
+[c]-.->[output]
