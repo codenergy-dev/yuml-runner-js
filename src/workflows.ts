@@ -81,7 +81,7 @@ export class Workflows {
           }
           
           pipeline.state = PipelineState.EXEC;
-          this.events.emit(pipeline)
+          this.events.emit(pipeline, config)
           
           const pipelineFunction = await this.loadPipelineFunction(pipeline)
           const output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
@@ -108,7 +108,7 @@ export class Workflows {
           console.log(`\n⛔ ${pipeline}`);
           console.log(`  └─ ${pipeline.error}`);
         } finally {
-          this.events.emit(pipeline)
+          this.events.emit(pipeline, config)
         }
 
         if (!pipeline.output) return;
@@ -154,7 +154,7 @@ export class Workflows {
       }
     } else {
       pipeline.state = PipelineState.WAIT;
-      this.events.emit(pipeline)
+      this.events.emit(pipeline, config)
 
       const nextPipeline = pipelines.find(
         p => pipeline.fanIn.includes(p.name)

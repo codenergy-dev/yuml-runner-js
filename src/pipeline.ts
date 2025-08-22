@@ -90,7 +90,7 @@ export type PipelineEventListener = {
   state: PipelineState | null
 }
 
-export type PipelineEventCallback = (pipeline: Pipeline) => void
+export type PipelineEventCallback = (pipeline: Pipeline, config?: PipelineRunConfig) => void
 
 export type PipelineEventUnsubscribe = () => void
 
@@ -112,10 +112,10 @@ export class PipelineEventEmitter {
     }
   }
 
-  emit(pipeline: Pipeline) {
+  emit(pipeline: Pipeline, config?: PipelineRunConfig) {
     this.listeners
       .filter(e => (e.pipeline == pipeline.functionName || e.pipeline == null)
                 && (e.state == pipeline.state || !e.state))
-      .forEach(e => e.callback(pipeline))
+      .forEach(e => e.callback(pipeline, config))
   }
 }
