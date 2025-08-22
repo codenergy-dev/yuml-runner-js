@@ -54,12 +54,12 @@ export class Pipeline {
     )
   }
 
-  complete(input: PipelineInput, args: PipelineInput, output: PipelineOutput) {
-    this.fanInCheck = [...this.fanIn]
-    this.state = PipelineState.DONE
-    this.input = {...input}
-    this.args = {...args}
-    this.output = [...(output ?? [])]
+  copy(pipeline: Pipeline) {
+    this.fanInCheck = pipeline.state == PipelineState.DONE ? [...this.fanIn] : this.fanInCheck
+    this.state = pipeline.state
+    this.input = {...pipeline.input}
+    this.args = {...pipeline.args}
+    this.output = [...(pipeline.output ?? [])]
   }
 
   reset() {
