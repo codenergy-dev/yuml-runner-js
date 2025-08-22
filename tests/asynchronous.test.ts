@@ -1,4 +1,3 @@
-import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
@@ -9,7 +8,10 @@ describe('asynchronous', () => {
       'asynchronous': () => import('./pipelines/asynchronous')
     })
 
-    const pipelines = await workflows.run('asynchronous', 'a')
-    expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(3)
+    const onPipelineDone = jest.fn()
+    workflows.events.on(null, onPipelineDone)
+
+    await workflows.run('asynchronous', 'a')
+    expect(onPipelineDone).toHaveBeenCalledTimes(3)
   })
 })

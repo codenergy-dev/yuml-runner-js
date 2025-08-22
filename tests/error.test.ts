@@ -9,7 +9,10 @@ describe('error', () => {
       'error': () => import('./pipelines/error')
     })
 
-    const pipelines = await workflows.run('error', 'a')
-    expect(pipelines.filter(p => p.state == PipelineState.FAILED).length).toBe(1)
+    const onPipelineFailed = jest.fn()
+    workflows.events.on(null, onPipelineFailed, PipelineState.FAILED)
+
+    await workflows.run('error', 'a')
+    expect(onPipelineFailed).toHaveBeenCalledTimes(1)
   })
 })

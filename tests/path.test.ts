@@ -19,7 +19,7 @@ describe('path', () => {
       }
     })
     
-    const pipelines = await workflows.run('path', 'a')
+    await workflows.run('path', 'a')
     expect(anotherWorkflowHistory.join('->')).toBe('a->b')
   })
 
@@ -40,7 +40,7 @@ describe('path', () => {
       }
     })
     
-    const pipelines = await workflows.run('path', 'd')
+    await workflows.run('path', 'd')
     expect(onNotEntrypointPipeline).toHaveBeenCalledTimes(1)
   })
 })

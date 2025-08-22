@@ -1,4 +1,3 @@
-import { PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
@@ -16,7 +15,7 @@ describe('event', () => {
     const onPipelineEvent = jest.fn()
     workflows.events.on('event', onPipelineEvent)
 
-    const pipelines = await workflows.run('a-b', 'a')
+    await workflows.run('a-b', 'a')
     expect(onPipelineEvent).toHaveBeenCalledTimes(1)
   })
 })

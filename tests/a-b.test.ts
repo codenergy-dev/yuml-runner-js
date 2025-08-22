@@ -1,4 +1,4 @@
-import { PipelineState } from '../src/pipeline'
+import { Pipeline, PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
@@ -14,8 +14,11 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run('a-b', 'a')
-    expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(2)
+    const onPipelineDone = jest.fn()
+    workflows.events.on(null, onPipelineDone)
+
+    await workflows.run('a-b', 'a')
+    expect(onPipelineDone).toHaveBeenCalledTimes(2)
   })
   
   it('validate pipeline args', async () => {
@@ -24,7 +27,10 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run('a-b', 'a')
+    const pipelines: Pipeline[] = []
+    workflows.events.on(null, (p) => pipelines.push(p))
+
+    await workflows.run('a-b', 'a')
     expect(pipelines.find(p => p.name == 'a')?.args['foo']).toBe('bar')
   })
 
@@ -83,7 +89,10 @@ describe('a-b', () => {
       'a-b': () => import('./pipelines/a-b')
     })
 
-    const pipelines = await workflows.run('a-b', 'b')
-    expect(pipelines.filter(p => p.state == PipelineState.DONE).length).toBe(0)
+    const onPipelineDone = jest.fn()
+    workflows.events.on(null, onPipelineDone)
+
+    await workflows.run('a-b', 'b')
+    expect(onPipelineDone).toHaveBeenCalledTimes(0)
   })
 })
