@@ -134,8 +134,11 @@ export class Workflows {
           if (!nextPipeline) continue;
 
           nextPipeline.state = PipelineState.IDLE;
-          nextPipeline.fanInCheck.push(pipeline.name);
           nextPipeline.input = { ...nextPipeline.input, ...output };
+
+          if (nextPipeline.fanIn.includes(pipeline.name)) {
+            nextPipeline.fanInCheck.push(pipeline.name);
+          }
         }
 
         const nextPipelines: Promise<void>[] = []
