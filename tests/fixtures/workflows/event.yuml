@@ -1,0 +1,5 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+
+[a-b.b]->[event]

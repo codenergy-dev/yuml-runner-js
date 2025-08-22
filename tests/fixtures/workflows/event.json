@@ -1,0 +1,26 @@
+[
+  {
+    "name": "a-b.b",
+    "function": "b",
+    "path": "a-b",
+    "workflow": "event",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "event"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "event",
+    "function": "event",
+    "path": null,
+    "workflow": "event",
+    "args": {},
+    "fanIn": [
+      "a-b.b"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]
