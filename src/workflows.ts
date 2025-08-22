@@ -11,7 +11,17 @@ export class Workflows {
   constructor(
     public readonly pipelines: Pipeline[],
     private modules: PipelineModuleMap = {},
-  ) {}
+  ) {
+    this.pipelines
+      .filter(p => p.path && p.entrypoint)
+      .forEach(a => {
+        this.events.on(a.functionName, (b) => {
+          if (a.path == b.workflow) {
+            this.run(a.workflow, a.name, {}, b)
+          }
+        })
+      })
+  }
 
   public readonly events: PipelineEventEmitter = new PipelineEventEmitter()
   
