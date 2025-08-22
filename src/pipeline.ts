@@ -13,6 +13,7 @@ export type PipelineFunctionMap = { [key: string]: PipelineFunction }
 export type PipelineModuleMap = { [key: string]: () => Promise<PipelineFunctionMap> }
 
 export type PipelineRunConfig = {
+  id?: number
   args?: any
   scope?: any
   global?: any
