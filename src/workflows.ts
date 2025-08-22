@@ -26,7 +26,7 @@ export class Workflows {
     this.modules = modules
   }
 
-  async run(workflow: string, pipeline: string, config?: PipelineRunConfig) {
+  async run(workflow: string, pipeline: string, config?: PipelineRunConfig, initialPipelineState?: Pipeline) {
     const pipelines = [...this.pipelines.map(p => p.reset())]
     const nextPipeline = pipelines
       .find(p => p.entrypoint
@@ -34,6 +34,9 @@ export class Workflows {
               && p.workflow == workflow)
     if (nextPipeline && config?.args) {
       nextPipeline.args = config.args
+    }
+    if (nextPipeline && initialPipelineState) {
+      nextPipeline.copy(initialPipelineState)
     }
     await this.runNextPipeline(pipelines, nextPipeline, config)
     return pipelines.filter(p => p.state == PipelineState.DONE || p.state == PipelineState.FAILED)
