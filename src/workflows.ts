@@ -71,35 +71,34 @@ export class Workflows {
           this.events.emit(pipeline)
           
           const pipelineFunction = await this.loadPipelineFunction(pipeline)
-          pipeline.output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
+          const output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
 
           pipeline.state = PipelineState.DONE;
           pipeline.fanInCheck = [];
+
+          if (Array.isArray(output)) {
+            pipeline.output = output;
+            console.log(`\n🔁 ${pipeline} (${output.length})`);
+          } else if (typeof output === "object") {
+            pipeline.output = [output];
+            console.log(`\n✅ ${pipeline}`);
+          } else if (!output) {
+            pipeline.output = null;
+            console.log(`\n✅ ${pipeline}`);
+          } else {
+            throw new Error(`Unexpected output (${output}) for pipeline ${pipeline}.`);
+          }
         } catch (e: any) {
           pipeline.output = null;
           pipeline.state = PipelineState.FAILED;
           pipeline.error = e.toString();
+          console.log(`\n⛔ ${pipeline}`);
+          console.log(`  └─ ${pipeline.error}`);
         } finally {
           this.events.emit(pipeline)
         }
 
-        if (pipeline.error) {
-          console.log(`\n⛔ ${pipeline}`);
-          console.log(`  └─ ${pipeline.error}`);
-          return;
-        } else if (!pipeline.output) {
-          console.log(`\n✅ ${pipeline}`);
-          return;
-        }
-
-        if (Array.isArray(pipeline.output)) {
-          console.log(`\n🔁 ${pipeline} (${pipeline.output.length})`);
-        } else if (typeof pipeline.output === "object") {
-          console.log(`\n✅ ${pipeline}`);
-          pipeline.output = [pipeline.output];
-        } else {
-          throw new Error(`Unexpected output (${pipeline.output}) for pipeline ${pipeline}.`);
-        }
+        if (!pipeline.output) return;
 
         for (const output of pipeline.output) {
           if (typeof output === "object") {
