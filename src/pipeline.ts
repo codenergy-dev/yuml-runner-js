@@ -55,6 +55,20 @@ export class Pipeline {
     )
   }
 
+  parseInput(value: PipelineInput, forceValue: boolean = true) {
+    if (typeof value !== 'object') {
+      throw Error(`Pipeline ${this} input expects an object, but received '${value}' (${typeof value}).`)
+    } if (Object.getPrototypeOf(value) != Object.prototype) {
+      return value
+    } else if (Object.getPrototypeOf(this.input) == Object.prototype) {
+      return { ...this.input, ...value }
+    } else if (forceValue) {
+      return value
+    } else {
+      return this.input
+    }
+  }
+
   copy(pipeline: Pipeline) {
     this.fanInCheck = pipeline.state == PipelineState.DONE ? [...this.fanIn] : this.fanInCheck
     this.state = pipeline.state

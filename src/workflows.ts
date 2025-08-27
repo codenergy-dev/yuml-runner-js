@@ -79,7 +79,7 @@ export class Workflows {
       if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
         try {
           console.log(`\n▶️  ${pipeline}`)
-          const inputWithArgs = { ...pipeline.input, ...pipeline.args }
+          const inputWithArgs = pipeline.parseInput(pipeline.args, false)
           for (const [key, value] of Object.entries(inputWithArgs)) {
             console.log(`  └─ ${key}: ${value}`);
           }
@@ -140,7 +140,7 @@ export class Workflows {
           if (!nextPipeline) continue;
 
           nextPipeline.state = PipelineState.IDLE;
-          nextPipeline.input = { ...nextPipeline.input, ...output };
+          nextPipeline.input = nextPipeline.parseInput(output);
 
           if (nextPipeline.fanIn.includes(pipeline.name)) {
             nextPipeline.fanInCheck.push(pipeline.name);
