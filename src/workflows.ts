@@ -43,7 +43,7 @@ export class Workflows {
               && p.name == pipeline
               && p.workflow == workflow)
     if (nextPipeline && config?.args) {
-      nextPipeline.args = config.args
+      nextPipeline.input = nextPipeline.parseInput(config.args)
     }
     if (nextPipeline && initialPipelineState) {
       nextPipeline.copy(initialPipelineState)
