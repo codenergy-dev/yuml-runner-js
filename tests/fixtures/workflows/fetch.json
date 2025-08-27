@@ -1,0 +1,40 @@
+[
+  {
+    "name": "fetchUrl",
+    "function": "fetchUrl",
+    "path": null,
+    "workflow": "fetch",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "responseStatusOk"
+    ],
+    "entrypoint": true
+  },
+  {
+    "name": "responseStatusOk",
+    "function": "responseStatusOk",
+    "path": null,
+    "workflow": "fetch",
+    "args": {},
+    "fanIn": [
+      "fetchUrl"
+    ],
+    "fanOut": [
+      "responseText"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "responseText",
+    "function": "responseText",
+    "path": null,
+    "workflow": "fetch",
+    "args": {},
+    "fanIn": [
+      "responseStatusOk"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  }
+]

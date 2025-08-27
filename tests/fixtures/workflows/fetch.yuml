@@ -1,0 +1,6 @@
+// {type:class}
+// {direction:leftToRight}
+// {generate:true}
+
+[fetchUrl]->[responseStatusOk]
+[responseStatusOk]->[responseText]
