@@ -187,7 +187,11 @@ export class Workflows {
     if (!nextPipeline) {
       throw new Error(`Pipeline from workflow '${pipeline.path}' with function '${pipeline.functionName}' not found.`);
     } else if (nextPipeline.entrypoint) {
-      const nextPipelineRunConfig = { ...config, id: Date.now() }
+      const nextPipelineRunConfig = {
+        ...config,
+        id: Date.now(),
+        args: pipeline.parseInput(pipeline.args, false),
+      }
       const nextPipelineCallback = (p: Pipeline, c?: PipelineRunConfig) => {
         if (c?.id != nextPipelineRunConfig.id) {
           return
