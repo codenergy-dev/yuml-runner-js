@@ -5,7 +5,7 @@ export function a({ count }: ForEachCount) {
 }
 
 export function forEach({ count }: ForEachCount) {
-  return Array(count).map(e => {})
+  return Array.from({ length: count }, (_, i) => ({ i }))
 }
 
 export function b() {
