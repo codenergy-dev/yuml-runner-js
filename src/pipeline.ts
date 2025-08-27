@@ -19,9 +19,9 @@ export type PipelineRunConfig = {
   global?: any
 }
 
-export type PipelineInput = Record<string, any>
+export type PipelineInput = object
 
-export type PipelineOutput = Record<string, any>[] | null
+export type PipelineOutput = object[] | null
 
 export class Pipeline {
   constructor(
