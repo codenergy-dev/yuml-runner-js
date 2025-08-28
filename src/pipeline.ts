@@ -4,6 +4,7 @@ export enum PipelineState {
   WAIT = "wait",
   DONE = "done",
   FAILED = "failed",
+  SKIP = "skip",
 }
 
 export type PipelineFunction = (args: any, scope?: any, global?: any) => any

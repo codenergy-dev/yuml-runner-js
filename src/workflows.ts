@@ -126,6 +126,9 @@ export class Workflows {
             }
           }
         }
+      } else if (pipeline.state == PipelineState.SKIP) {
+        console.log(`⏩ ${pipeline}`)
+        this.events.emit(pipeline, config)
       }
 
       const fanOutList = pipeline.fanOutPending ? [pipeline.fanOutPending] : pipeline.fanOut;
@@ -136,6 +139,7 @@ export class Workflows {
           const nextPipeline = pipelines.find(
             p => p.name === fanOut
               && p.workflow == pipeline.workflow
+              && p.state != PipelineState.SKIP
           );
           if (!nextPipeline) continue;
 
@@ -151,7 +155,7 @@ export class Workflows {
         for (const fanOut of fanOutList) {
           const nextPipeline = pipelines.find(
             p => p.name === fanOut
-              && [PipelineState.IDLE, PipelineState.WAIT].includes(p.state)
+              && [PipelineState.IDLE, PipelineState.WAIT, PipelineState.SKIP].includes(p.state)
               && p.workflow == pipeline.workflow
           );
           if (nextPipeline) {
@@ -199,11 +203,13 @@ export class Workflows {
                    p.functionName == pipeline.functionName &&
                    p.entrypoint) {
           pipeline.copy(p)
+          pipeline.state = PipelineState.SKIP
         } else if (pipeline.fanOut.includes(`${p.workflow}.${p.name}`)) {
-          pipelines
-            .find(p => p.name == `${p.workflow}.${p.name}`
-                    && p.workflow == pipeline.workflow)
-            ?.copy(p)
+          const nextFanOut = pipelines
+            .find(fanOut => fanOut.name == `${p.workflow}.${p.name}`
+                         && fanOut.workflow == pipeline.workflow)
+          if (nextFanOut) nextFanOut.copy(p)
+          if (nextFanOut) nextFanOut.state = PipelineState.SKIP
         }
       }
       const nextPipelineUnsubscribe = this.events.on(null, nextPipelineCallback)
