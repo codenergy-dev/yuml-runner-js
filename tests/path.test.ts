@@ -1,3 +1,4 @@
+import { Pipeline, PipelineState } from '../src/pipeline'
 import { Workflows } from '../src/workflows'
 import { readWorkflowJson } from './utils/read-workflow-json'
 
@@ -42,5 +43,26 @@ describe('path', () => {
     
     await workflows.run('path', 'd')
     expect(onNotEntrypointPipeline).toHaveBeenCalledTimes(1)
+  })
+
+  it('compare inputs and outputs between workflows', async () => {
+    const workflows = Workflows.fromJson([
+      ...readWorkflowJson('output.json'),
+      ...readWorkflowJson('path.json'),
+    ])
+    workflows.bindModules({
+      'output': () => import('./pipelines/output'),
+      'path': () => import('./pipelines/path')
+    })
+
+    const pipelines: Pipeline[] = []
+    workflows.events.on(null, (p) => pipelines.push(p))
+    workflows.events.on(null, (p) => pipelines.push(p), PipelineState.SKIP)
+
+    await workflows.run('path', 'f')
+    expect(pipelines.find(p => p.path == 'output' && p.name == 'output.c')?.input)
+      .toStrictEqual(pipelines.find(p => p.workflow == 'output' && p.name == 'c')?.input)
+    expect(pipelines.find(p => p.path == 'output' && p.name == 'output.c')?.output)
+      .toStrictEqual(pipelines.find(p => p.workflow == 'output' && p.name == 'c')?.output)
   })
 })

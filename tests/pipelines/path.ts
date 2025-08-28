@@ -13,3 +13,11 @@ export function d() {
 export function e() {
   return {}
 }
+
+export function f() {
+  return {}
+}
+
+export function g() {
+  return {}
+}

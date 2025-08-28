@@ -2,16 +2,17 @@
 // {direction:topDown}
 // {generate:true}
 
-[a]
 [a-b-c-d-e.a]-[note: Calls pipeline from another workflow that is an entrypoint, it will run ALL pipeline chain]
 [a-b-c-d-e.b]-[note: Propagates the result from another workflow]
 [a-b-c-d-e.d]-[note: Calls pipeline from another workflow that is NOT an entrypoint, it will run ONLY ONE pipeline]
-[c]
-[d]
-[e]
 
 [a]->[a-b-c-d-e.a]
-[d]->[a-b-c-d-e.d]
 [a-b-c-d-e.a]->[a-b-c-d-e.b]
 [a-b-c-d-e.b]->[c]
+
+[d]->[a-b-c-d-e.d]
 [a-b-c-d-e.d]->[e]
+
+[f]->[output.a]
+[output.a]->[output.c]
+[output.c]->[g]

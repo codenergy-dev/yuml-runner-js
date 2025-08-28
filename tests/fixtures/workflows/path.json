@@ -24,6 +24,18 @@
     "entrypoint": true
   },
   {
+    "name": "f",
+    "function": "f",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [],
+    "fanOut": [
+      "output.a"
+    ],
+    "entrypoint": true
+  },
+  {
     "name": "a-b-c-d-e.a",
     "function": "a",
     "path": "a-b-c-d-e",
@@ -85,6 +97,46 @@
     "args": {},
     "fanIn": [
       "a-b-c-d-e.d"
+    ],
+    "fanOut": [],
+    "entrypoint": false
+  },
+  {
+    "name": "output.a",
+    "function": "a",
+    "path": "output",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "f"
+    ],
+    "fanOut": [
+      "output.c"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "output.c",
+    "function": "c",
+    "path": "output",
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "output.a"
+    ],
+    "fanOut": [
+      "g"
+    ],
+    "entrypoint": false
+  },
+  {
+    "name": "g",
+    "function": "g",
+    "path": null,
+    "workflow": "path",
+    "args": {},
+    "fanIn": [
+      "output.c"
     ],
     "fanOut": [],
     "entrypoint": false
