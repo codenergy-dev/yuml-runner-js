@@ -96,7 +96,7 @@ export class Workflows {
             console.log(`✅ ${pipeline}`);
           } else if (!output) {
             pipeline.output = null;
-            console.log(`✅ ${pipeline}`);
+            console.log(`🛑 ${pipeline}`);
           } else {
             throw new Error(`Unexpected output (${output}) for pipeline ${pipeline}.`);
           }
@@ -104,8 +104,7 @@ export class Workflows {
           pipeline.output = null;
           pipeline.state = PipelineState.FAILED;
           pipeline.error = e.toString();
-          console.log(`⛔ ${pipeline}`);
-          console.log(`  └─ ${pipeline.error}`);
+          console.log(`⚠️  ${pipeline} ${pipeline.error}`);
         } finally {
           this.events.emit(pipeline, config)
         }
@@ -152,7 +151,7 @@ export class Workflows {
               && p.workflow == pipeline.workflow
           );
           if (nextPipeline) {
-            console.log(`ℹ️  ${pipeline}->${nextPipeline}`);
+            console.log(`⏭️  ${pipeline}->${nextPipeline}`);
             nextPipelines.push(this.runNextPipeline(pipelines, nextPipeline, config));
           }
         }
@@ -169,7 +168,7 @@ export class Workflows {
       );
 
       if (nextPipeline) {
-        console.log(`ℹ️  ${nextPipeline}<-${pipeline}`);
+        console.log(`⏸️  ${nextPipeline}<-${pipeline}`);
         nextPipeline.fanOutPending = pipeline.name;
       }
 
