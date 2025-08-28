@@ -70,6 +70,17 @@ export class Pipeline {
     }
   }
 
+  isReady() {
+    const fanInSet = new Set(this.fanIn)
+    const fanInCheckSet = new Set(this.fanInCheck)
+    if (fanInSet.size !== fanInCheckSet.size) return false
+    return [...fanInSet].every(value => fanInCheckSet.has(value))
+  }
+
+  canBeExecuted() {
+    return [PipelineState.IDLE, PipelineState.WAIT].includes(this.state)
+  }
+
   copy(pipeline: Pipeline) {
     this.fanInCheck = pipeline.state == PipelineState.DONE ? [...this.fanIn] : this.fanInCheck
     this.state = pipeline.state

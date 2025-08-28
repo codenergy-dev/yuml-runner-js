@@ -68,15 +68,8 @@ export class Workflows {
       return await this.runNextPipelineFromPath(pipelines, pipeline, config)
     }
 
-    const fanInSet = new Set(pipeline.fanIn);
-    const fanInCheckSet = new Set(pipeline.fanInCheck);
-
-    const isReady =
-      fanInSet.size === fanInCheckSet.size &&
-      [...fanInSet].every(value => fanInCheckSet.has(value));
-
-    if (isReady) {
-      if ([PipelineState.IDLE, PipelineState.WAIT].includes(pipeline.state)) {
+    if (pipeline.isReady()) {
+      if (pipeline.canBeExecuted()) {
         try {
           console.log(`▶️  ${pipeline}`)
           const inputWithArgs = pipeline.parseInput(pipeline.args, false)
