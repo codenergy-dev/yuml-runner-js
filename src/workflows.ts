@@ -94,6 +94,9 @@ export class Workflows {
           } else if (typeof output === "object") {
             pipeline.output = [output];
             console.log(`✅ ${pipeline}`);
+          } else if (output === true) {
+            pipeline.output = [inputWithArgs];
+            console.log(`✅ ${pipeline}`);
           } else if (!output) {
             pipeline.output = null;
             console.log(`🛑 ${pipeline}`);
