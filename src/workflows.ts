@@ -183,9 +183,7 @@ export class Workflows {
     var nextPipeline = pipelines
       .find(p => p.workflow == pipeline.path
               && p.functionName == pipeline.functionName)
-    if (!nextPipeline) {
-      throw new Error(`Pipeline from workflow '${pipeline.path}' with function '${pipeline.functionName}' not found.`);
-    } else if (nextPipeline.entrypoint) {
+    if (nextPipeline?.entrypoint) {
       const nextPipelineRunConfig = {
         ...config,
         id: Date.now(),
