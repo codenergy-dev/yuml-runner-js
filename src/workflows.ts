@@ -72,7 +72,7 @@ export class Workflows {
       if (pipeline.canBeExecuted()) {
         try {
           console.log(`▶️  ${pipeline}`)
-          const inputWithArgs = pipeline.parseInput(pipeline.args, false)
+          const inputWithArgs = pipeline.parseInput(pipeline.args)
           for (const [key, value] of Object.entries(inputWithArgs)) {
             console.log(`  └─ ${key}: ${value}`);
           }
@@ -91,7 +91,7 @@ export class Workflows {
           if (Array.isArray(output)) {
             pipeline.output = output;
             console.log(`🔁 ${pipeline} (${output.length})`);
-          } else if (typeof output === "object") {
+          } else if (typeof output === "object" && Object.getPrototypeOf(output) == Object.prototype) {
             pipeline.output = [output];
             console.log(`✅ ${pipeline}`);
           } else if (output === true) {
@@ -101,7 +101,7 @@ export class Workflows {
             pipeline.output = null;
             console.log(`🛑 ${pipeline}`);
           } else {
-            throw new Error(`Unexpected output (${output}) for pipeline ${pipeline}.`);
+            throw new Error(`Unexpected output '${output}' (${typeof output}) for pipeline ${pipeline}.`);
           }
         } catch (e: any) {
           pipeline.output = null;
@@ -187,7 +187,7 @@ export class Workflows {
       const nextPipelineRunConfig = {
         ...config,
         id: Date.now(),
-        args: pipeline.parseInput(pipeline.args, false),
+        args: pipeline.parseInput(pipeline.args),
       }
       const nextPipelineCallback = (p: Pipeline, c?: PipelineRunConfig) => {
         if (c?.id != nextPipelineRunConfig.id) {

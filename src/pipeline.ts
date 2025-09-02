@@ -20,9 +20,9 @@ export type PipelineRunConfig = {
   global?: any
 }
 
-export type PipelineInput = object
+export type PipelineInput = Record<string, any>
 
-export type PipelineOutput = object[] | null
+export type PipelineOutput = Record<string, any>[] | null
 
 export class Pipeline {
   constructor(
@@ -30,7 +30,7 @@ export class Pipeline {
     public functionName: string,
     public path: string | null,
     public workflow: string,
-    public args: Record<string, any>,
+    public args: PipelineInput,
     public fanIn: string[],
     public fanOut: string[],
     public entrypoint: boolean,
@@ -56,18 +56,11 @@ export class Pipeline {
     )
   }
 
-  parseInput(value: PipelineInput, forceValue: boolean = true) {
-    if (typeof value !== 'object') {
-      throw Error(`Pipeline ${this} input expects an object, but received '${value}' (${typeof value}).`)
-    } if (Object.getPrototypeOf(value) != Object.prototype) {
-      return value
-    } else if (Object.getPrototypeOf(this.input) == Object.prototype) {
-      return { ...this.input, ...value }
-    } else if (forceValue) {
-      return value
-    } else {
-      return this.input
+  parseInput(value: PipelineInput): PipelineInput {
+    if (typeof value !== 'object' || Object.getPrototypeOf(value) != Object.prototype) {
+      throw Error(`Pipeline ${this} input expects a plain object, but received '${value}' (${typeof value}).`)
     }
+    return { ...this.input, ...value }
   }
 
   isReady() {
