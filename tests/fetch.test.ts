@@ -14,6 +14,6 @@ describe('fetch', () => {
 
     await workflows.run('fetch', 'fetchUrl')
     expect(pipelines.map(p => p.name).join('->')).toBe('fetchUrl->responseStatusOk->responseText')
-    expect(pipelines.find(p => p.name == 'responseStatusOk')?.input).toBeInstanceOf(Response)
+    expect(pipelines.find(p => p.name == 'fetchUrl')?.output![0].response).toBeInstanceOf(Response)
   })
 })
