@@ -9,7 +9,13 @@
     "fanOut": [
       "asynchronous"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "asynchronous",
+      "b"
+    ]
   },
   {
     "name": "asynchronous",
@@ -23,7 +29,14 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "asynchronous",
+      "b"
+    ]
   },
   {
     "name": "b",
@@ -35,6 +48,13 @@
       "asynchronous"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "asynchronous"
+    ],
+    "executionPlan": [
+      "b"
+    ]
   }
 ]

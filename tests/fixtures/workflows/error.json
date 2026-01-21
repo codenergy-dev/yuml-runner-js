@@ -9,7 +9,13 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b",
+      "error"
+    ]
   },
   {
     "name": "b",
@@ -23,7 +29,14 @@
     "fanOut": [
       "error"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b",
+      "error"
+    ]
   },
   {
     "name": "error",
@@ -35,6 +48,13 @@
       "b"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "b"
+    ],
+    "executionPlan": [
+      "error"
+    ]
   }
 ]

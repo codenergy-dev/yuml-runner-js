@@ -16,6 +16,10 @@ describe('event', () => {
     workflows.events.on('event', onPipelineEvent)
 
     await workflows.run('a-b', 'a')
+    
+    // Awaits the event to trigger the pipeline
+    await new Promise((r) => setTimeout(r, 100))
+    
     expect(onPipelineEvent).toHaveBeenCalledTimes(1)
   })
 })

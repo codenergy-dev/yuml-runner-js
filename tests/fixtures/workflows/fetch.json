@@ -9,7 +9,13 @@
     "fanOut": [
       "responseStatusOk"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "fetchUrl",
+      "responseStatusOk",
+      "responseText"
+    ]
   },
   {
     "name": "responseStatusOk",
@@ -23,7 +29,14 @@
     "fanOut": [
       "responseText"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "fetchUrl"
+    ],
+    "executionPlan": [
+      "responseStatusOk",
+      "responseText"
+    ]
   },
   {
     "name": "responseText",
@@ -35,6 +48,13 @@
       "responseStatusOk"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "fetchUrl",
+      "responseStatusOk"
+    ],
+    "executionPlan": [
+      "responseText"
+    ]
   }
 ]

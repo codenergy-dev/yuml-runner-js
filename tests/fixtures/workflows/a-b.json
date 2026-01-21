@@ -11,7 +11,12 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b"
+    ]
   },
   {
     "name": "b",
@@ -23,6 +28,12 @@
       "a"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b"
+    ]
   }
 ]

@@ -2,6 +2,7 @@ import {
   Pipeline,
   PipelineEventEmitter,
   PipelineFunctionMap,
+  PipelineInput,
   PipelineModuleMap,
   PipelineRunConfig,
   PipelineState,
@@ -14,10 +15,10 @@ export class Workflows {
   ) {
     this.pipelines
       .filter(p => p.path && p.entrypoint)
-      .forEach(a => {
-        this.events.on(a.functionName, (b) => {
-          if (a.path == b.workflow) {
-            this.run(a.workflow, a.name, {}, b)
+      .forEach(event => {
+        this.events.on(event.functionName, (trigger) => {
+          if (event.path == trigger.workflow) {
+            this.run(event.workflow, event.name, { event: event.path }, event.reset().copy(trigger))
           }
         })
       })
@@ -36,181 +37,165 @@ export class Workflows {
     this.modules = modules
   }
 
-  async run(workflow: string, pipeline: string, config?: PipelineRunConfig, initialPipelineState?: Pipeline) {
-    const pipelines = [...this.pipelines.map(p => p.reset())]
-    const nextPipeline = pipelines
-      .find(p => p.entrypoint
-              && p.name == pipeline
-              && p.workflow == workflow)
-    if (nextPipeline && config?.args) {
-      nextPipeline.input = nextPipeline.parseInput(config.args)
+  async run(workflow: string, pipeline: string, config: PipelineRunConfig = {}, initialPipelineState?: Pipeline) {
+    const pipelines: { [pipeline: string]: Pipeline } = this.pipelines
+      .filter(p => p.workflow == workflow)
+      .reduce((acc, p) => ({ ...acc, [p.name]: p.reset() }), {})
+    const nextPipeline = pipelines[pipeline]
+    if (!nextPipeline) {
+      throw new Error(`Pipeline [${pipeline}] from workflow '${workflow}' not found.`)
+    } else if (!nextPipeline.entrypoint && !config.ignoreEntrypoint) {
+      throw new Error(`Pipeline ${nextPipeline} is not an entrypoint. Review workflow '${workflow}'.`)
+    }
+    
+    if (config.args) {
+      nextPipeline.args = config.args
     }
     if (nextPipeline && initialPipelineState) {
       nextPipeline.copy(initialPipelineState)
     }
-    await this.runNextPipeline(pipelines, nextPipeline, config)
-    return pipelines
-      .find(p => p.name == "output"
-              && p.workflow == workflow
-              && p.state == PipelineState.DONE)
-      ?.input
-  }
-
-  private async runNextPipeline(
-    pipelines: Pipeline[],
-    pipeline?: Pipeline,
-    config?: PipelineRunConfig,
-    ignorePath: boolean = false,
-  ): Promise<void> {
-    if (!pipeline) return;
-
-    if (pipeline.path && ignorePath == false) {
-      return await this.runNextPipelineFromPath(pipelines, pipeline, config)
-    }
-
-    if (pipeline.isReady()) {
-      if (pipeline.canBeExecuted()) {
-        try {
-          console.log(`▶️  ${pipeline}`)
-          const inputWithArgs = pipeline.parseInput(pipeline.args)
-          for (const [key, value] of Object.entries(inputWithArgs)) {
-            console.log(`  └─ ${key}: ${value}`);
-          }
-          
-          pipeline.state = PipelineState.EXEC;
-          this.events.emit(pipeline, config)
-          
-          const pipelineFunction = pipeline.name == "output"
-            ? () => null
-            : await this.loadPipelineFunction(pipeline)
-          const output = await pipelineFunction(inputWithArgs, config?.scope, config?.global);
-
-          pipeline.state = PipelineState.DONE;
-          pipeline.fanInCheck = [];
-
-          if (Array.isArray(output)) {
-            pipeline.output = output;
-            console.log(`🔁 ${pipeline} (${output.length})`);
-          } else if (typeof output === "object" && Object.getPrototypeOf(output) == Object.prototype) {
-            pipeline.output = [output];
-            console.log(`✅ ${pipeline}`);
-          } else if (output === true) {
-            pipeline.output = [inputWithArgs];
-            console.log(`✅ ${pipeline}`);
-          } else if (!output) {
-            pipeline.output = null;
-            console.log(`🛑 ${pipeline}`);
-          } else {
-            throw new Error(`Unexpected output '${output}' (${typeof output}) for pipeline ${pipeline}.`);
-          }
-        } catch (e: any) {
-          pipeline.output = null;
-          pipeline.state = PipelineState.FAILED;
-          pipeline.error = e.toString();
-          console.log(`⚠️  ${pipeline} ${pipeline.error}`);
-        } finally {
-          this.events.emit(pipeline, config)
-        }
-
-        if (!pipeline.output || pipeline.name == "output") return;
-
-        for (const output of pipeline.output) {
-          if (typeof output === "object") {
-            for (const [key, value] of Object.entries(output)) {
-              console.log(`  └─ ${key}: ${value}`);
-            }
-          }
-        }
-      } else if (pipeline.state == PipelineState.SKIP) {
-        console.log(`⏩ ${pipeline}`)
-        this.events.emit(pipeline, config)
-      }
-
-      const fanOutList = pipeline.fanOutPending ? [pipeline.fanOutPending] : pipeline.fanOut;
-      pipeline.fanOutPending = null;
-
-      for (const output of pipeline.output!) {
-        for (const fanOut of fanOutList) {
-          const nextPipeline = pipelines.find(
-            p => p.name === fanOut
-              && p.workflow == pipeline.workflow
-              && p.state != PipelineState.SKIP
-          );
-          if (!nextPipeline) continue;
-
-          nextPipeline.state = PipelineState.IDLE;
-          nextPipeline.input = nextPipeline.parseInput(output);
-
-          if (nextPipeline.fanIn.includes(pipeline.name)) {
-            nextPipeline.fanInCheck.push(pipeline.name);
-          }
-        }
-
-        const nextPipelines: Promise<void>[] = []
-        for (const fanOut of fanOutList) {
-          const nextPipeline = pipelines.find(
-            p => p.name === fanOut
-              && [PipelineState.IDLE, PipelineState.WAIT, PipelineState.SKIP].includes(p.state)
-              && p.workflow == pipeline.workflow
-          );
-          if (nextPipeline) {
-            console.log(`⏭️  ${pipeline}->${nextPipeline}`);
-            nextPipelines.push(this.runNextPipeline(pipelines, nextPipeline, config));
-          }
-        }
-        await Promise.all(nextPipelines)
-      }
-    } else {
-      pipeline.state = PipelineState.WAIT;
-      this.events.emit(pipeline, config)
-
-      const nextPipeline = pipelines.find(
-        p => pipeline.fanIn.includes(p.name)
-          && !pipeline.fanInCheck.includes(p.name)
-          && p.workflow == pipeline.workflow
-      );
-
-      if (nextPipeline) {
-        console.log(`⏸️  ${nextPipeline}<-${pipeline}`);
-        nextPipeline.fanOutPending = pipeline.name;
-      }
-
-      await this.runNextPipeline(pipelines, nextPipeline, config);
-    }
-  }
-
-  private async runNextPipelineFromPath(pipelines: Pipeline[], pipeline: Pipeline, config?: PipelineRunConfig): Promise<void> {
-    var nextPipeline = pipelines
-      .find(p => p.workflow == pipeline.path
-              && p.functionName == pipeline.functionName)
-    if (nextPipeline?.entrypoint) {
-      const nextPipelineRunConfig = {
-        ...config,
-        id: Date.now(),
-        args: pipeline.parseInput(pipeline.args),
-      }
-      const nextPipelineCallback = (p: Pipeline, c?: PipelineRunConfig) => {
-        if (c?.id != nextPipelineRunConfig.id) {
-          return
-        } else if (p.workflow == pipeline.path &&
-                   p.functionName == pipeline.functionName &&
-                   p.entrypoint) {
-          pipeline.copy(p)
-          pipeline.state = PipelineState.SKIP
-        } else if (pipeline.fanOut.includes(`${p.workflow}.${p.name}`)) {
-          const nextFanOut = pipelines
-            .find(fanOut => fanOut.name == `${p.workflow}.${p.name}`
-                         && fanOut.workflow == pipeline.workflow)
-          if (nextFanOut) nextFanOut.copy(p)
-          if (nextFanOut) nextFanOut.state = PipelineState.SKIP
-        }
-      }
-      const nextPipelineUnsubscribe = this.events.on(null, nextPipelineCallback)
-      await this.run(nextPipeline.workflow, nextPipeline.name, nextPipelineRunConfig)
-      nextPipelineUnsubscribe()
+    if (!nextPipeline.entrypoint) {
+      nextPipeline.fanIn = []
+      nextPipeline.fanOut = []
+      nextPipeline.executionPlan = [nextPipeline.name]
     }
     
-    await this.runNextPipeline(pipelines, pipeline, config, true)
+    await this.runExecutionPlan(pipelines, nextPipeline.executionPlan, config)
+    
+    if (!pipelines['output']) return null
+    return pipelines['output'].input
+  }
+
+  private async runExecutionPlan(pipelines: Record<string, Pipeline>, executionPlan: string[], config: PipelineRunConfig) {
+    for (var executionIndex = 0; executionIndex < executionPlan.length; executionIndex++) {
+      try {
+        const pipeline = pipelines[executionPlan[executionIndex]]
+        if (!pipeline) {
+          break
+        }
+        if (pipeline.fanIn.some(fanIn => !pipelines[fanIn].output)) {
+          continue
+        }
+        if (pipeline.state == PipelineState.SKIP) {
+          continue
+        }
+        if (pipeline.path && pipeline.path != config.event) {
+          await this.runPipelineFromPath(pipelines, pipeline)
+          continue
+        }
+        if (pipeline.input.length == 0) {
+          pipeline.input = this.getPipelineInput(pipelines, pipeline)
+        }
+        if (pipeline.input.length >= 2) {
+          executionPlan.splice(executionIndex, 0, ...pipeline.executionPlan)
+        }
+  
+        var inputWithArgs: PipelineInput = {}
+        inputWithArgs = pipeline.input.shift()!
+        inputWithArgs = { ...inputWithArgs, ...pipeline.args }
+        
+        this.emitPipelineState(pipeline, PipelineState.EXEC, config, inputWithArgs)
+        
+        await this.executePipeline(pipeline, inputWithArgs, config)
+  
+        this.emitPipelineState(pipeline, PipelineState.DONE, config)
+      } catch (e: any) {
+        const pipeline = pipelines[executionPlan[executionIndex]]
+        if (pipeline) {
+          pipeline.output = null;
+          pipeline.error = e.toString();
+          this.emitPipelineState(pipeline, PipelineState.FAILED, config)
+        }
+      }
+    }
+  }
+
+  private async runPipelineFromPath(pipelines: Record<string, Pipeline>, pipeline: Pipeline) {
+    const pipelineRunConfig: PipelineRunConfig = {
+      id: Date.now(),
+      args: pipeline.args,
+      ignoreEntrypoint: true,
+    }
+    const path = pipeline.path!
+    const name = pipeline.name.split('.')[1]
+    const fanOut = pipeline.fanOut
+      .filter(fanOut => fanOut.startsWith(`${path}.`))
+      .map(fanOut => fanOut.substring(path.length + 1))
+    const pipelineRunUnsubscribe = this.events.on(null, (p, c) => {
+      if (c?.id != pipelineRunConfig.id) return
+      if (p.path) return
+      if (p.name == name || fanOut.includes(p.name)) {
+        pipelines[`${path}.${p.name}`].copy(p)
+        pipelines[`${path}.${p.name}`].state = PipelineState.SKIP
+      }
+    })
+    await this.run(path, name, pipelineRunConfig)
+    pipelineRunUnsubscribe()
+  }
+
+  private getPipelineInput(pipelines: Record<string, Pipeline>, pipeline: Pipeline) {
+    var fanIn = [...pipeline.fanIn]
+    if (pipeline.name == 'output') {
+      fanIn = Object
+        .values(pipelines)
+        .filter(pipeline => pipeline.fanOut.includes('output'))
+        .map(pipeline => pipeline.name)
+    }
+    return fanIn
+      .filter(fanIn => pipelines[fanIn].output?.length)
+      .map(fanIn => pipelines[fanIn].output!)
+      // cartesian product
+      .reduce<PipelineInput[][]>(
+        (acc, curr) => acc.flatMap(a => curr.map(c => [...a, c])),
+        [[]])
+      // merge combinations
+      .map<PipelineInput>(input => Object.assign({}, ...input));
+  }
+
+  private emitPipelineState(pipeline: Pipeline, state: PipelineState, config: PipelineRunConfig, inputWithArgs: PipelineInput = {}) {
+    pipeline.state = state
+    if (state == PipelineState.EXEC) {
+      console.log(`▶️  ${pipeline}`)
+      for (const [key, value] of Object.entries(inputWithArgs)) {
+        console.log(`  └─ ${key}: ${value}`);
+      }
+    } else if (state == PipelineState.DONE) {
+      if (!pipeline.output) {
+        console.log(`🛑 ${pipeline}`);
+      } else if (pipeline.output!.length >= 2) {
+        console.log(`🔁 ${pipeline} (${pipeline.output!.length})`);
+      } else {
+        console.log(`✅ ${pipeline}`);
+      }
+      for (const output of pipeline.output ?? []) {
+        if (typeof output === "object") {
+          for (const [key, value] of Object.entries(output)) {
+            console.log(`  └─ ${key}: ${value}`);
+          }
+        }
+      }
+    } else if (state == PipelineState.FAILED) {
+      console.log(`⚠️  ${pipeline} ${pipeline.error}`);
+    }
+    this.events.emit(pipeline, config)
+  }
+
+  private async executePipeline(pipeline: Pipeline, inputWithArgs: PipelineInput, config: PipelineRunConfig) {
+    const pipelineFunction = pipeline.name == "output"
+      ? () => null
+      : await this.loadPipelineFunction(pipeline)
+    const output = await pipelineFunction(inputWithArgs, config.scope, config.global);
+    if (!output) {
+      pipeline.output = null;
+    } else if (Array.isArray(output)) {
+      pipeline.output = output;
+    } else if (typeof output === "object" && Object.getPrototypeOf(output) == Object.prototype) {
+      pipeline.output = [output];
+    } else if (output === true) {
+      pipeline.output = [inputWithArgs];
+    } else {
+      throw new Error(`Unexpected output '${output}' (${typeof output}) for pipeline ${pipeline}.`);
+    }
   }
 
   private async loadPipelineFunction(pipeline: Pipeline) {

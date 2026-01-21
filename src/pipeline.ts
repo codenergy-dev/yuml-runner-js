@@ -18,6 +18,8 @@ export type PipelineRunConfig = {
   args?: any
   scope?: any
   global?: any
+  event?: string
+  ignoreEntrypoint?: boolean
 }
 
 export type PipelineInput = Record<string, any>
@@ -34,12 +36,13 @@ export class Pipeline {
     public fanIn: string[],
     public fanOut: string[],
     public entrypoint: boolean,
+    public dependencies: string[],
+    public executionPlan: string[],
   ) {}
   
-  fanInCheck: string[] = []
   fanOutPending: string | null = null
   state: PipelineState = PipelineState.IDLE
-  input: PipelineInput = {}
+  input: PipelineInput[] = []
   output: PipelineOutput = null
   error: string | null = null
 
@@ -53,33 +56,17 @@ export class Pipeline {
       json['fanIn'],
       json['fanOut'],
       json['entrypoint'],
+      json['dependencies'],
+      json['executionPlan'],
     )
   }
 
-  parseInput(value: PipelineInput): PipelineInput {
-    if (typeof value !== 'object' || Object.getPrototypeOf(value) != Object.prototype) {
-      throw Error(`Pipeline ${this} input expects a plain object, but received '${value}' (${typeof value}).`)
-    }
-    return { ...this.input, ...value }
-  }
-
-  isReady() {
-    const fanInSet = new Set(this.fanIn)
-    const fanInCheckSet = new Set(this.fanInCheck)
-    if (fanInSet.size !== fanInCheckSet.size) return false
-    return [...fanInSet].every(value => fanInCheckSet.has(value))
-  }
-
-  canBeExecuted() {
-    return [PipelineState.IDLE, PipelineState.WAIT].includes(this.state)
-  }
-
   copy(pipeline: Pipeline) {
-    this.fanInCheck = pipeline.state == PipelineState.DONE ? [...this.fanIn] : this.fanInCheck
     this.state = pipeline.state
-    this.input = {...pipeline.input}
+    this.input = [...pipeline.input]
     this.args = {...pipeline.args}
     this.output = [...(pipeline.output ?? [])]
+    return this
   }
 
   reset() {
@@ -92,6 +79,8 @@ export class Pipeline {
       this.fanIn,
       this.fanOut,
       this.entrypoint,
+      this.dependencies,
+      this.executionPlan,
     )
   }
 

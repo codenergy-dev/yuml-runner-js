@@ -11,7 +11,13 @@
     "fanOut": [
       "forEach"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "forEach",
+      "b"
+    ]
   },
   {
     "name": "forEach",
@@ -25,7 +31,14 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "forEach",
+      "b"
+    ]
   },
   {
     "name": "b",
@@ -37,6 +50,13 @@
       "forEach"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "forEach"
+    ],
+    "executionPlan": [
+      "b"
+    ]
   }
 ]

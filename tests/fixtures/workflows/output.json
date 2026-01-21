@@ -9,7 +9,14 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b",
+      "c",
+      "output"
+    ]
   },
   {
     "name": "output",
@@ -19,7 +26,11 @@
     "args": {},
     "fanIn": [],
     "fanOut": [],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "output"
+    ]
   },
   {
     "name": "b",
@@ -33,7 +44,15 @@
     "fanOut": [
       "c"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b",
+      "c",
+      "output"
+    ]
   },
   {
     "name": "c",
@@ -47,6 +66,14 @@
     "fanOut": [
       "output"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "b"
+    ],
+    "executionPlan": [
+      "c",
+      "output"
+    ]
   }
 ]

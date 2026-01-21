@@ -88,11 +88,9 @@ describe('a-b', () => {
     workflows.bindModules({
       'a-b': () => import('./pipelines/a-b')
     })
-
-    const onPipelineDone = jest.fn()
-    workflows.events.on(null, onPipelineDone)
-
-    await workflows.run('a-b', 'b')
-    expect(onPipelineDone).toHaveBeenCalledTimes(0)
+    
+    await expect(workflows.run('a-b', 'b'))
+      .rejects
+      .toThrow("Pipeline [a-b.b] is not an entrypoint. Review workflow 'a-b'.")
   })
 })

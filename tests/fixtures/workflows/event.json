@@ -9,7 +9,12 @@
     "fanOut": [
       "event"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a-b.b",
+      "event"
+    ]
   },
   {
     "name": "event",
@@ -21,6 +26,12 @@
       "a-b.b"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a-b.b"
+    ],
+    "executionPlan": [
+      "event"
+    ]
   }
 ]

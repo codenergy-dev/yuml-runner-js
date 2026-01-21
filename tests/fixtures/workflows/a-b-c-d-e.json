@@ -9,7 +9,12 @@
     "fanOut": [
       "b"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "b"
+    ]
   },
   {
     "name": "c",
@@ -21,7 +26,13 @@
     "fanOut": [
       "d"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "c",
+      "d",
+      "e"
+    ]
   },
   {
     "name": "b",
@@ -33,7 +44,13 @@
       "a"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "b"
+    ]
   },
   {
     "name": "d",
@@ -47,7 +64,14 @@
     "fanOut": [
       "e"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "c"
+    ],
+    "executionPlan": [
+      "d",
+      "e"
+    ]
   },
   {
     "name": "e",
@@ -59,6 +83,13 @@
       "d"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "c",
+      "d"
+    ],
+    "executionPlan": [
+      "e"
+    ]
   }
 ]

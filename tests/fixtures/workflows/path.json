@@ -9,7 +9,14 @@
     "fanOut": [
       "a-b-c-d-e.a"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "a",
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b",
+      "c"
+    ]
   },
   {
     "name": "d",
@@ -21,7 +28,13 @@
     "fanOut": [
       "a-b-c-d-e.d"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "d",
+      "a-b-c-d-e.d",
+      "e"
+    ]
   },
   {
     "name": "f",
@@ -33,7 +46,14 @@
     "fanOut": [
       "output.a"
     ],
-    "entrypoint": true
+    "entrypoint": true,
+    "dependencies": [],
+    "executionPlan": [
+      "f",
+      "output.a",
+      "output.c",
+      "g"
+    ]
   },
   {
     "name": "a-b-c-d-e.a",
@@ -47,7 +67,15 @@
     "fanOut": [
       "a-b-c-d-e.b"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b",
+      "c"
+    ]
   },
   {
     "name": "a-b-c-d-e.b",
@@ -61,7 +89,15 @@
     "fanOut": [
       "c"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "a-b-c-d-e.a"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.b",
+      "c"
+    ]
   },
   {
     "name": "a-b-c-d-e.d",
@@ -75,7 +111,14 @@
     "fanOut": [
       "e"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "d"
+    ],
+    "executionPlan": [
+      "a-b-c-d-e.d",
+      "e"
+    ]
   },
   {
     "name": "c",
@@ -87,7 +130,15 @@
       "a-b-c-d-e.b"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "a",
+      "a-b-c-d-e.a",
+      "a-b-c-d-e.b"
+    ],
+    "executionPlan": [
+      "c"
+    ]
   },
   {
     "name": "e",
@@ -99,7 +150,14 @@
       "a-b-c-d-e.d"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "d",
+      "a-b-c-d-e.d"
+    ],
+    "executionPlan": [
+      "e"
+    ]
   },
   {
     "name": "output.a",
@@ -113,7 +171,15 @@
     "fanOut": [
       "output.c"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "f"
+    ],
+    "executionPlan": [
+      "output.a",
+      "output.c",
+      "g"
+    ]
   },
   {
     "name": "output.c",
@@ -127,7 +193,15 @@
     "fanOut": [
       "g"
     ],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "f",
+      "output.a"
+    ],
+    "executionPlan": [
+      "output.c",
+      "g"
+    ]
   },
   {
     "name": "g",
@@ -139,6 +213,14 @@
       "output.c"
     ],
     "fanOut": [],
-    "entrypoint": false
+    "entrypoint": false,
+    "dependencies": [
+      "f",
+      "output.a",
+      "output.c"
+    ],
+    "executionPlan": [
+      "g"
+    ]
   }
 ]
