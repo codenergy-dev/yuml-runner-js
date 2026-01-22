@@ -87,20 +87,22 @@ export class Workflows {
         if (pipeline.state == PipelineState.SKIP) {
           continue
         }
-        if (pipeline.path && pipeline.path != config.event) {
-          await this.runPipelineFromPath(pipelines, pipeline)
-          continue
-        }
+        
         if (pipeline.input.length == 0) {
           pipeline.input = this.getPipelineInput(pipelines, pipeline)
         }
         if (pipeline.input.length >= 2) {
           executionPlan.splice(executionIndex, 0, ...pipeline.executionPlan)
         }
-  
+
         var inputWithArgs: PipelineInput = {}
         inputWithArgs = pipeline.input.shift()!
         inputWithArgs = { ...inputWithArgs, ...pipeline.args }
+        
+        if (pipeline.path && pipeline.path != config.event) {
+          await this.runPipelineFromPath(pipelines, pipeline, inputWithArgs)
+          continue
+        }
         
         this.emitPipelineState(pipeline, PipelineState.EXEC, config, inputWithArgs)
         
@@ -118,10 +120,10 @@ export class Workflows {
     }
   }
 
-  private async runPipelineFromPath(pipelines: Record<string, Pipeline>, pipeline: Pipeline) {
+  private async runPipelineFromPath(pipelines: Record<string, Pipeline>, pipeline: Pipeline, inputWithArgs: PipelineInput) {
     const pipelineRunConfig: PipelineRunConfig = {
       id: Date.now(),
-      args: pipeline.args,
+      args: inputWithArgs,
       ignoreEntrypoint: true,
     }
     const path = pipeline.path!
