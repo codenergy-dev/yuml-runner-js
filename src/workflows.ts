@@ -41,13 +41,13 @@ export class Workflows {
     const pipelines: { [pipeline: string]: Pipeline } = this.pipelines
       .filter(p => p.workflow == workflow)
       .reduce((acc, p) => ({ ...acc, [p.name]: p.reset() }), {})
-    const nextPipeline = pipelines[pipeline]
-    if (!nextPipeline) {
-      throw new Error(`Pipeline [${pipeline}] from workflow '${workflow}' not found.`)
-    } else if (!nextPipeline.entrypoint && !config.ignoreEntrypoint) {
-      throw new Error(`Pipeline ${nextPipeline} is not an entrypoint. Review workflow '${workflow}'.`)
-    }
+    var nextPipeline = pipelines[pipeline]
     
+    if (!nextPipeline) {
+      const functionName = pipeline.split(':')[0]
+      nextPipeline = new Pipeline(pipeline, functionName, null, workflow, [], [], [], false, [], [])
+      pipelines[pipeline] = nextPipeline
+    }
     if (config.args) {
       nextPipeline.args = config.args
     }
