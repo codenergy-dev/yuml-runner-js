@@ -59,6 +59,14 @@ export class Workflows {
       nextPipeline.fanOut = []
       nextPipeline.executionPlan = [nextPipeline.name]
     }
+    if (nextPipeline.entrypoint || nextPipeline.executionPlan.length > 1) {
+      console.log(`🟢 Running workflow '${nextPipeline.workflow}' execution plan:`)
+      for (var i = 0; i < nextPipeline.executionPlan.length; i++) {
+        const entrypoint = nextPipeline.entrypoint && nextPipeline.name == nextPipeline.executionPlan[i]
+        console.log(`  └─ ${i + 1}. ${nextPipeline.executionPlan[i]} ${entrypoint ? '▶️' : ''}`);
+      }
+      console.log('')
+    }
     
     await this.runExecutionPlan(pipelines, nextPipeline.executionPlan, config)
     
@@ -177,6 +185,7 @@ export class Workflows {
     } else if (state == PipelineState.FAILED) {
       console.log(`⚠️  ${pipeline} ${pipeline.error}`);
     }
+    console.log('')
     this.events.emit(pipeline, config)
   }
 
