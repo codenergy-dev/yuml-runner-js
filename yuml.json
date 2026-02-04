@@ -1,0 +1,4 @@
+{
+  "pipelines": "tests/pipelines",
+  "workflows": "tests/fixtures/workflows"
+}
