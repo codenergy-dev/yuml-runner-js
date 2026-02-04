@@ -98,6 +98,7 @@ export class Workflows {
         var inputWithArgs: PipelineInput = {}
         inputWithArgs = pipeline.input.shift()!
         inputWithArgs = { ...inputWithArgs, ...pipeline.args }
+        inputWithArgs = this.formatPipelineData(pipeline, inputWithArgs, 'input')
         
         if (pipeline.path && pipeline.path != config.event) {
           await this.runPipelineFromPath(pipelines, pipeline, inputWithArgs)
@@ -162,6 +163,29 @@ export class Workflows {
       .map<PipelineInput>(input => Object.assign({}, ...input));
   }
 
+  private formatPipelineData(pipeline: Pipeline, data: Record<string, any>, type: 'input' | 'output') {
+    var format = Object
+      .keys(pipeline.args)
+      .filter(arg => arg.startsWith('^') || arg.endsWith('$'))
+    if (!format.length) return data
+
+    var newData = { ...data }
+    for (var i = 0; i < format.length; i++) {
+      var keyType = format[i].startsWith('^')
+        ? 'input'
+        : 'output'
+      var key = keyType == 'input'
+        ? format[i].slice(1)
+        : format[i].slice(0, format[i].length - 1)
+      if (keyType == type && key in data) {
+        newData[pipeline.args[format[i]]] = data[key]
+        delete newData[key]
+      }
+      delete newData[format[i]]
+    }
+    return newData
+  }
+
   private emitPipelineState(pipeline: Pipeline, state: PipelineState, config: PipelineRunConfig, inputWithArgs: PipelineInput = {}) {
     pipeline.state = state
     if (state == PipelineState.EXEC) {
@@ -207,6 +231,9 @@ export class Workflows {
     } else {
       throw new Error(`Unexpected output '${output}' (${typeof output}) for pipeline ${pipeline}.`);
     }
+    pipeline.output = pipeline.output
+      ?.map(output => this.formatPipelineData(pipeline, output, 'output'))
+      ?? null
   }
 
   private async loadPipelineFunction(pipeline: Pipeline) {
