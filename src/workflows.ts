@@ -115,6 +115,7 @@ export class Workflows {
         if (pipeline) {
           pipeline.output = null;
           pipeline.error = e.toString();
+          pipeline.trace = e instanceof Error ? e.stack ?? null : null;
           this.emitPipelineState(pipeline, PipelineState.FAILED, config)
         }
       }
@@ -210,6 +211,7 @@ export class Workflows {
       }
     } else if (state == PipelineState.FAILED) {
       console.log(`⚠️  ${pipeline} ${pipeline.error}`);
+      pipeline.trace && console.error(pipeline.trace)
     }
     console.log('')
     this.events.emit(pipeline, config)

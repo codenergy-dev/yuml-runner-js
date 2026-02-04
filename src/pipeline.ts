@@ -45,6 +45,7 @@ export class Pipeline {
   input: PipelineInput[] = []
   output: PipelineOutput = null
   error: string | null = null
+  trace: string | null = null
 
   static fromJson(json: any) {
     return new Pipeline(
