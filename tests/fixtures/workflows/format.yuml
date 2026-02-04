@@ -1,0 +1,11 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+// {import:tests/pipelines/format.ts}
+
+[a|a=1]
+[b|^a=b|b$=c]
+[c]
+
+[a]->[b]
+[b]->[c]
