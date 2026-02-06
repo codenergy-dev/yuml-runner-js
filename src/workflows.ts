@@ -71,7 +71,7 @@ export class Workflows {
     await this.runExecutionPlan(pipelines, nextPipeline.executionPlan, config)
     
     if (!pipelines['output']) return null
-    return pipelines['output'].input
+    return pipelines['output'].output
   }
 
   private async runExecutionPlan(pipelines: Record<string, Pipeline>, executionPlan: string[], config: PipelineRunConfig) {
@@ -219,7 +219,7 @@ export class Workflows {
 
   private async executePipeline(pipeline: Pipeline, inputWithArgs: PipelineInput, config: PipelineRunConfig) {
     const pipelineFunction = pipeline.name == "output"
-      ? () => null
+      ? () => inputWithArgs
       : await this.loadPipelineFunction(pipeline)
     const output = await pipelineFunction(inputWithArgs, config.scope, config.global);
     if (!output) {
