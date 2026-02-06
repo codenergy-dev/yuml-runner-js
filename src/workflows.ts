@@ -45,7 +45,7 @@ export class Workflows {
     
     if (!nextPipeline) {
       const functionName = pipeline.split(':')[0]
-      nextPipeline = new Pipeline(pipeline, functionName, null, workflow, [], [], [], false, [], [])
+      nextPipeline = new Pipeline(pipeline, functionName, null, workflow, [], [], [], [], false, [], [])
       pipelines[pipeline] = nextPipeline
     }
     if (config.args) {
@@ -81,7 +81,7 @@ export class Workflows {
         if (!pipeline) {
           break
         }
-        if (pipeline.fanIn.some(fanIn => !pipelines[fanIn].output)) {
+        if (pipeline.fanIn.some(fanIn => !pipelines[fanIn].output?.length && !pipeline.fanInNullable.includes(fanIn))) {
           continue
         }
         if (pipeline.state == PipelineState.SKIP) {
