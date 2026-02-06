@@ -98,12 +98,13 @@ export class Workflows {
         var inputWithArgs: PipelineInput = {}
         inputWithArgs = pipeline.input.shift()!
         inputWithArgs = { ...inputWithArgs, ...pipeline.args }
-        inputWithArgs = this.formatPipelineData(pipeline, inputWithArgs, 'input')
         
         if (pipeline.path && pipeline.path != config.event) {
           await this.runPipelineFromPath(pipelines, pipeline, inputWithArgs)
           continue
         }
+
+        inputWithArgs = this.formatPipelineData(pipeline, inputWithArgs, 'input')
         
         this.emitPipelineState(pipeline, PipelineState.EXEC, config, inputWithArgs)
         
